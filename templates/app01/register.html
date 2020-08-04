@@ -1,0 +1,137 @@
+{% extends "basic.html" %}
+{% block title %}注册页面{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/register.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 col-xs-8 col-xs-offset-2">
+            <form id="form-date" novalidate>
+                <div class="account">
+                    <h3 class="text-center"><b>用户注册</b></h3>
+                </div>
+                {% for field in userinfo %}
+                    {% if field.label == "验证码" %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
+                            {{ field }}
+                            <button type="button" class="btn btn-default pull-right input-sm" id="get-yzm">获取验证码</button>
+                        </div>
+                        <span class="error_msg" style="margin-top: -15px;"></span>
+                    {% else %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            <span class="error_msg"></span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <button type="button" id="register" class="btn btn-primary"
+                        style="margin-bottom: 15px;margin-top: 5px;">注册</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $(function(){
+        yzmCodeEvent();
+        sendRegisterData();
+    });
+
+    $.ajaxSetup({
+        data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
+
+    // 验证码倒计时
+    function SmsTime(){
+        let $btnEle = $("#get-yzm");
+        $btnEle.prop('disable', true);
+        let timer = 60;
+        let t =setInterval(function(){
+            $btnEle.text(`(${timer})重新发送`);
+            timer--;
+            if (timer <= 0){
+                clearInterval(t);
+                $btnEle.prop('disable', false)
+            }
+        }, 1000)
+    }
+
+    // 注册用户
+    function sendRegisterData(){
+        $("#register").click(function(){
+            let data = $("#form-date").serialize();
+            $.ajax({
+                url: '{% url "app01:register" %}',
+                type: "post",
+                dataType: "json",
+                data: data,
+                success: function(arg){
+                    if(arg.status){
+                        location.href = arg.path;
+                    }else{
+                        /*
+                        for (var key in arg.error_msg){
+                            console.log(key);
+                            if (key === "yzm"){
+                                $('#id_' + key).parent().next().text(arg.error_msg[key][0])
+                            }else{
+                                $('#id_' + key).next().text(arg.error_msg[key][0])
+                            }
+                        }
+                        */
+                        $.each(arg.error_msg, function (k, v) {
+                            // console.log(k, v);
+                            if (k === "yzm"){
+                                $('#id_' + k).parent().next().text(v[0])
+                            }else{
+                                $('#id_' + k).next().text(v[0])
+                            }
+                        });
+                    }
+                }
+            })
+        })
+    }
+
+    // 获取验证码事件
+    function yzmCodeEvent(){
+        $("#get-yzm").click(function(){
+            let phoneEle = $('#id_phone');
+            let phoneNum = phoneEle.val().trim();
+            let phoneReg = /^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+
+            if (phoneNum && phoneReg.test(phoneNum)){
+                phoneEle.next().text('');
+                // console.log("phoneNum:", phoneNum);
+                $.ajax({
+                    url: '{% url "app01:sms_code" %}',
+                    type: "post",
+                    data: {phone: phoneNum, tpl: "register"},
+                    dataType: "json",
+                    success: function(arg){
+                        // console.log(arg);
+                        if (arg.status){
+                            SmsTime();
+                        }else {
+                            // console.log(arg);
+                            phoneEle.next().text(arg.error_msg.phone);
+                        }
+                    }
+                })
+            }else{
+                $('.error_msg').text('');
+                phoneEle.next().text('手机号格式错误！');
+                return false;
+            }
+        });
+    }
+
+</script>
+{% endblock %}

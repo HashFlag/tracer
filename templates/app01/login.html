@@ -1,0 +1,49 @@
+{% extends "basic.html" %}
+{% block title %}登录页面{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/register.css">
+    <style>
+        #id_yzm{
+            width: 60%;
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 col-xs-8 col-xs-offset-2">
+            <form id="form-date" novalidate>
+                <div class="account">
+                    <h3 class="text-center"><b>用户登录</b></h3>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.yzm.id_for_label }}">{{ form.yzm.label }}</label><br>
+                    <button type="button" class="btn btn-default pull-right input-sm" id="get-yzm">获取验证码</button>
+                    {{ form.yzm }}
+                </div>
+                <button type="button" id="register" class="btn btn-primary"
+                        style="margin-bottom: 15px;margin-top: 5px;">登录</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
