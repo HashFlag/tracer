@@ -1,9 +1,8 @@
 {% extends "basic.html" %}
-{% block title %}注册页面{% endblock %}
+{% block title %}登录页面{% endblock %}
 {% block css %}
     <link rel="stylesheet" href="/static/css/register.css">
 {% endblock %}
-
 {% block content %}
 <div class="container">
     <div class="row">
@@ -11,38 +10,35 @@
             <form id="form-date" novalidate>
                 {% csrf_token %}
                 <div class="account">
-                    <h3 class="text-center"><b>用户注册</b></h3>
+                    <h3 class="text-center"><b>用户登录</b></h3>
                 </div>
-                {% for field in userinfo %}
-                    {% if field.label == "验证码" %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label><br>
-                            {{ field }}
-                            <button type="button" class="btn btn-default pull-right input-sm" id="get-yzm">获取验证码</button>
-                        </div>
-                        <span class="error_msg" style="margin-top: -15px;"></span>
-                    {% else %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}
-                            <span class="error_msg"></span>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                <button type="button" id="register" class="btn btn-primary"
-                        style="margin-bottom: 15px;margin-top: 5px;">注册</button>
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                    <span class="error_msg"></span>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.yzm.id_for_label }}">{{ form.yzm.label }}</label><br>
+                    <button type="button" class="btn btn-default pull-right input-sm" id="get-yzm">获取验证码</button>
+                    {{ form.yzm }}
+                </div>
+                <span class="error_msg" style="margin-top: -15px;"></span>
+                <div>
+                    <button type="button" id="login" class="btn btn-primary"
+                            style="margin-bottom: 15px;margin-top: 5px;">登录</button>
+                    <a href="{% url 'app01:login' %}" class="pull-right"
+                    style="font-size: 12px;">账号密码登录?</a>
+                </div>
             </form>
         </div>
     </div>
 </div>
-
 {% endblock %}
-
 {% block js %}
 <script>
     $(function(){
         yzmCodeEvent();
-        sendRegisterData();
+        sendLoginData();
     });
 
     $.ajaxSetup({
@@ -64,12 +60,12 @@
         }, 1000)
     }
 
-    // 注册用户
-    function sendRegisterData(){
-        $("#register").click(function(){
+    // 登录用户
+    function sendLoginData(){
+        $("#login").click(function(){
             let data = $("#form-date").serialize();
             $.ajax({
-                url: '{% url "app01:register" %}',
+                url: '{% url "app01:login_sms" %}',
                 type: "post",
                 dataType: "json",
                 data: data,
@@ -77,16 +73,6 @@
                     if(arg.status){
                         location.href = arg.path;
                     }else{
-                        /*
-                        for (var key in arg.error_msg){
-                            console.log(key);
-                            if (key === "yzm"){
-                                $('#id_' + key).parent().next().text(arg.error_msg[key][0])
-                            }else{
-                                $('#id_' + key).next().text(arg.error_msg[key][0])
-                            }
-                        }
-                        */
                         $.each(arg.error_msg, function (k, v) {
                             // console.log(k, v);
                             if (k === "yzm"){
@@ -114,7 +100,7 @@
                 $.ajax({
                     url: '{% url "app01:sms_code" %}',
                     type: "post",
-                    data: {phone: phoneNum, tpl: "register"},
+                    data: {phone: phoneNum, tpl: "login"},
                     dataType: "json",
                     success: function(arg){
                         // console.log(arg);
@@ -136,3 +122,14 @@
 
 </script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+

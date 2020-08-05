@@ -3,9 +3,25 @@
 {% block css %}
     <link rel="stylesheet" href="/static/css/register.css">
     <style>
-        #id_yzm{
-            width: 60%;
+        body{
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        form{
+            border: 1px solid #e6e6e6;
+            border-radius: 5px;
+            padding: 10px 20px;
+            box-shadow: 5px 5px 5px #e6e6e6;
+        }
+        #id_image_code{
+            width: 50%;
             display: inline-block;
+        }
+        .error_msg{
+            font-size: 12px;
+            color: red;
+            position: absolute;
         }
     </style>
 {% endblock %}
@@ -14,27 +30,83 @@
     <div class="row">
         <div class="col-md-4 col-md-offset-4 col-xs-8 col-xs-offset-2">
             <form id="form-date" novalidate>
+                {% csrf_token %}
                 <div class="account">
                     <h3 class="text-center"><b>用户登录</b></h3>
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
-                    {{ form.phone }}
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    <span class="error_msg"></span>
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.yzm.id_for_label }}">{{ form.yzm.label }}</label><br>
-                    <button type="button" class="btn btn-default pull-right input-sm" id="get-yzm">获取验证码</button>
-                    {{ form.yzm }}
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    <span class="error_msg"></span>
                 </div>
-                <button type="button" id="register" class="btn btn-primary"
-                        style="margin-bottom: 15px;margin-top: 5px;">登录</button>
+                <div class="form-group">
+                    <label for="{{ form.image_code.id_for_label }}">{{ form.image_code.label }}</label><br>
+                    <div  class="pull-right">
+                        <img src="{% url 'app01:img_code' %}" alt="图片验证码" id="img—code">
+                    </div>
+                    {{ form.image_code }}
+                </div>
+                <span class="error_msg" style="margin-top: -15px;"></span>
+                <div>
+                    <button type="button" id="login" class="btn btn-primary"
+                            style="margin-bottom: 15px;margin-top: 5px;">登录</button>
+                    <a href="{% url 'app01:login_sms' %}" class="pull-right"
+                    style="font-size: 12px;">短信验证码登录?</a>
+                </div>
             </form>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block js %}
+<script>
+    $(function(){
+        sendLoginData();
+        refreshImgCode();
+    });
 
+    // 登录用户
+    function sendLoginData(){
+        $("#login").click(function(){
+            let data = $("#form-date").serialize();
+            $.ajax({
+                url: '{% url "app01:login" %}',
+                type: "post",
+                dataType: "json",
+                data: data,
+                success: function(arg){
+                    if(arg.status){
+                        location.href = arg.path;
+                    }else{
+                        $(".error_msg").text('');
+                        $.each(arg.error_msg, function (k, v) {
+                            if (k === "image_code"){
+                                $('#id_' + k).parent().next().text(v[0])
+                            }else{
+                                $('#id_' + k).next().text(v[0])
+                            }
+                        });
+                    }
+                }
+            })
+        })
+    }
+
+    // 点击刷新验图片证码事件
+    function refreshImgCode() {
+        console.log(1);
+        $('#img—code').click(function () {
+            let oldSrc = $(this).attr('src');
+            $(this).attr('src',oldSrc + '?');
+        })
+    }
+
+</script>
 {% endblock %}
 
 

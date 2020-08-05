@@ -129,9 +129,17 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
 ]
 
+SMS_TEMPLATE_ID = {
+    'login': 'SMS_198692283',  # 登录使用的模板id
+    'register': 'SMS_198672376',  # 修注册使用的模板id
+}
+
+# session的过期时间
+IMAGE_CODE_EXPIRE = 60
 # 过期时间
 SMS_CODE_EXPIRE = 60
 
+# 设置redis缓存
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
