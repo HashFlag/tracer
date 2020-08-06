@@ -13,11 +13,11 @@ def image_code(
         mode="RGB",
         bg_color=(255, 255, 255),
         fg_color=(0, 0, 255),
-        font_size=18,
-        font_type='static/fonts/baiduZongYiJianTi.ttf',
-        length=4,
+        font_size=24,
+        font_type='static/fonts/LangManYaYuan.ttf',
+        length=5,
         draw_lines=True,
-        n_line=(1, 2),
+        n_line=(1, 4),
         draw_points=True,
         point_chance=2
 ):
@@ -45,7 +45,7 @@ def image_code(
 
     def get_chars():
         """ 生成给定长度的字符串，反回列表格式 """
-        return random.sample(chars, length)
+        return random.sample(chars, 1)[0]
 
     def get_color():
         """ 生成随机颜色 """
@@ -64,7 +64,7 @@ def image_code(
     def create_points():
         """ 绘制干扰点（噪点） """
         # 大小限制在[0, 100],省去了if else的复杂操作
-        chance = min(120, max(0, int(point_chance)))
+        chance = min(100, max(0, int(point_chance)))
         for w in range(width):
             for h in range(width):
                 tmp = random.randint(0, 100)
@@ -73,15 +73,16 @@ def image_code(
 
     def create_strs():
         """ 绘制验证码字符 """
-        c_chars = get_chars()
-        strs = '%s ' % ' '.join(c_chars)  # 每个字符前后以空格隔开
         font = ImageFont.truetype(font_type, font_size)
-        font_width, font_height = font.getsize(strs)
-        draw.text(
-            ((width-font_width)/3, (height-font_height)/3),
-            strs, font=font, fill=get_color()
-        )
-        return ''.join(c_chars)
+        char_list = []
+        for i in range(length):
+            char = get_chars()
+            char_list.append(char)
+            height = random.randint(1, 5)
+            draw.text([18 * (i + 1), height], char, get_color(), font=font)
+
+        char_code = ''.join(char_list)
+        return char_code
 
     if draw_lines:
         create_lines()
@@ -96,8 +97,8 @@ def image_code(
         0.001,
         float(random.randint(1, 2)) / 500
     ]
-    img = img.transform(size, Image.PERSPECTIVE, params)  # 创建扭曲
-    img = img.filter(ImageFilter.EDGE_ENHANCE_MORE)  # 滤镜，边界加强（阈值更大）
+    # img = img.transform(size, Image.PERSPECTIVE, params)  # 创建扭曲
+    # img = img.filter(ImageFilter.EDGE_ENHANCE_MORE)  # 滤镜，边界加强（阈值更大）
     return img, strs
 
 

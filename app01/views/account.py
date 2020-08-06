@@ -104,6 +104,7 @@ class Index(views.View):
 
 
 def img_code(request):
+    """ 图片验证码 """
     from io import BytesIO
     stream = BytesIO()
     img, code = image_code()
