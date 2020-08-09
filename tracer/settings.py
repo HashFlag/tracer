@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app01.apps.App01Config',
-    'web',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'app01.middleware.auth.LoginAuth',
 ]
 
 ROOT_URLCONF = 'tracer.urls'
@@ -133,6 +133,16 @@ SMS_TEMPLATE_ID = {
     'login': 'SMS_198692283',  # 登录使用的模板id
     'register': 'SMS_198672376',  # 修注册使用的模板id
 }
+
+# 白名单
+WHITE_LIST = [
+    '/app01/register/',
+    '/app01/login/',
+    '/app01/index/',
+    '/app01/login_sms/',
+    '/app01/send/sms_code/',
+    '/app01/img_code/',
+]
 
 # session的过期时间
 IMAGE_CODE_EXPIRE = 60

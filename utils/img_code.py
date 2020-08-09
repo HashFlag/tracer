@@ -14,7 +14,7 @@ def image_code(
         bg_color=(255, 255, 255),
         fg_color=(0, 0, 255),
         font_size=20,
-        font_type='static/fonts/bauhausef-demibold.otf',
+        font_type='static/fonts/LangManYaYuan.ttf',
         length=5,
         draw_lines=True,
         n_line=(1, 4),
