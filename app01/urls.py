@@ -1,5 +1,6 @@
-from django.conf.urls import url
-from app01.views import account, project
+from django.conf.urls import url, include
+from app01.views import account, project, dashboard, \
+    issues, file, setting, wiki, statistics
 urlpatterns = [
     url(r'^register/', account.Register.as_view(), name="register"),
     url(r'^send/sms_code/', account.SmsSendCode.as_view(), name="sms_code"),
@@ -11,6 +12,14 @@ urlpatterns = [
     url(r'^project_list/', project.ProjectList.as_view(), name="project_list"),
     url(r'^project/star/(\w+)/(\d+)/', project.project_star, name="project_star"),
     url(r'^project/unstar/(\w+)/(\d+)/', project.project_unstar, name="project_unstar"),
+    url(r'^manage/(?P<pro_id>\d+)/', include([
+        url(r'dashboard/', dashboard.Dashboard.as_view(), name='dashboard'),
+        url(r'issues/', issues.Issues.as_view(), name='issues'),
+        url(r'file/', file.File.as_view(), name='file'),
+        url(r'setting/', setting.Setting.as_view(), name='setting'),
+        url(r'wiki/', wiki.WiKi.as_view(), name='wiki'),
+        url(r'statistics/', statistics.Statistics.as_view(), name='statistics'),
+    ])),
 ]
 
 

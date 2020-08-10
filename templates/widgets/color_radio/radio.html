@@ -1,0 +1,11 @@
+{% with id=widget.attrs.id %}<div{% if id %} id="{{ id }}"{% endif %}class="{{ widget.attrs.class }}">
+    {% for group, options, index in widget.optgroups %}
+            {% for option in options %}
+                <label for="{{ option.attrs.id }}">
+                    {% include option.template_name with widget=option %}
+
+                </label>
+
+                {% endfor %}{% if group %}
+  {% endif %}{% endfor %}
+</div>{% endwith %}

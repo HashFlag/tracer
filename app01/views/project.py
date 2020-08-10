@@ -2,7 +2,7 @@ import json
 import uuid
 from django import views
 from django.shortcuts import render, redirect, HttpResponse
-from app01.mymodels import project
+from app01.myform import project
 from app01 import models
 
 
@@ -11,7 +11,7 @@ class ProjectList(views.View):
     def get(self, request):
         form = project.ProjectModelForm(request)
         project_dict = {'my': [], 'join': [], 'star': []}
-
+        # todo 计算项目参与人数
         my_project_list = models.Project.objects.filter(creator=request.tracer_obj.user_obj)
         for my_p in my_project_list:
             if my_p.star:
@@ -25,7 +25,7 @@ class ProjectList(views.View):
                 project_dict['star'].append({'star_type': 'join', 'value': join_p.project})
             else:
                 project_dict['join'].append(join_p.project)
-        print(project_dict['join'])
+        # print(project_dict['join'])
         return render(request, "app01/project_list.html", {'form': form, 'project_dict': project_dict})
 
     def post(self, request):
@@ -68,7 +68,6 @@ def project_unstar(request, start_type, pid):
             user=request.tracer_obj.user_obj
         ).update(star=False)
         return redirect('app01:project_list')
-
 
 
 

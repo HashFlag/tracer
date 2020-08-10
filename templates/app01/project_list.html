@@ -4,22 +4,29 @@
 {% block css %}
     <link rel="stylesheet" href="/static/css/error.css">
     <style>
-        .thumbnail{
+        .thumbnail {
             padding: 0;
             border-radius: 5px;
         }
-        .back-color{
+
+        .back-color {
             height: 100px;
-            line-height:100px;
-            text-align:center;
+            line-height: 100px;
+            text-align: center;
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
         }
-        .thumbnail .caption{
+
+        .thumbnail .caption {
             padding: 6px;
         }
-        .caption p{
+
+        .caption p {
             margin: 0;
+        }
+        #style-a {
+            color: black;
+            text-decoration: none;
         }
     </style>
 {% endblock %}
@@ -68,25 +75,28 @@
             <div class="panel-body">
                 <div class="row">
                     {% for start_pro in project_dict.star %}
-                    <div class="col-xs-4 col-sm-3 col-md-2">
-                        <div class="thumbnail">
-                            <div class="back-color" style="background-color: {{ start_pro.value.get_color_display }};">
-                                {{ start_pro.value.name }}
-                            </div>
-                            <div class="caption">
-                                <p class="clearfix">
+                        <div class="col-xs-4 col-sm-3 col-md-2">
+                            <div class="thumbnail">
+                                <a id="style-a" href="{% url 'app01:dashboard' start_pro.value.id %}">
+                                    <div class="back-color"
+                                         style="background-color: {{ start_pro.value.get_color_display }};">
+                                        {{ start_pro.value.name }}
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <p class="clearfix">
                                     <span class="pull-left">
                                         <a href="{% url 'app01:project_unstar' start_pro.star_type start_pro.value.id %}">
                                             <i class="fa fa-star" style="color:orange;"></i>
                                         </a> {{ start_pro.value.creator.username }}
                                     </span>
-                                    <span class="pull-right">
+                                        <span class="pull-right">
                                         <i class="fa fa-user-o"></i> {{ start_pro.value.join_count }}
                                     </span>
-                                </p>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -98,25 +108,27 @@
             <div class="panel-body">
                 <div class="row">
                     {% for start_pro in project_dict.my %}
-                    <div class="col-xs-4 col-sm-3 col-md-2">
-                        <div class="thumbnail">
-                            <div class="back-color" style="background-color: {{ start_pro.get_color_display }};">
-                                {{ start_pro.name }}
-                            </div>
-                            <div class="caption">
-                                <p class="clearfix">
+                        <div class="col-xs-4 col-sm-3 col-md-2">
+                            <div class="thumbnail">
+                                <a id="style-a" href="{% url 'app01:dashboard' start_pro.id %}">
+                                    <div class="back-color" style="background-color: {{ start_pro.get_color_display }};">
+                                        {{ start_pro.name }}
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <p class="clearfix">
                                     <span class="pull-left">
                                         <a href="{% url 'app01:project_star' 'my' start_pro.id %}">
                                             <i class="fa fa-star" style="color:lightgray;"></i>
                                         </a> {{ start_pro.creator.username }}
                                     </span>
-                                    <span class="pull-right">
+                                        <span class="pull-right">
                                         <i class="fa fa-user-o"></i> {{ start_pro.join_count }}
                                     </span>
-                                </p>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -128,25 +140,27 @@
             <div class="panel-body">
                 <div class="row">
                     {% for start_pro in project_dict.join %}
-                    <div class="col-xs-4 col-sm-3 col-md-2">
-                        <div class="thumbnail">
-                            <div class="back-color" style="background-color: {{ start_pro.get_color_display }};">
-                                {{ start_pro.name }}
-                            </div>
-                            <div class="caption">
-                                <p class="clearfix">
+                        <div class="col-xs-4 col-sm-3 col-md-2">
+                            <div class="thumbnail">
+                                <a id="style-a" href="{% url 'app01:dashboard' start_pro.id %}">
+                                    <div class="back-color" style="background-color: {{ start_pro.get_color_display }};">
+                                        {{ start_pro.name }}
+                                    </div>
+                                </a>
+                                <div class="caption">
+                                    <p class="clearfix">
                                     <span class="pull-left">
                                         <a href="{% url 'app01:project_star' 'join' start_pro.id %}">
                                             <i class="fa fa-star" style="color:lightgray;"></i>
                                         </a> {{ start_pro.creator.username }}
                                     </span>
-                                    <span class="pull-right">
+                                        <span class="pull-right">
                                         <i class="fa fa-user-o"></i> {{ start_pro.join_count }}
                                     </span>
-                                </p>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -159,35 +173,37 @@
             bindSubmit();
             bindClear();
         })
-        function bindClear(){
-            $(".clear-text").click(function(){
+
+        function bindClear() {
+            $(".clear-text").click(function () {
                 $('.error_msg').text('');
             })
         }
-        function bindSubmit(){
-            $("#submit").click(function(){
+
+        function bindSubmit() {
+            $("#submit").click(function () {
                 let nameEle = $("#id_name");
-                if (nameEle.val().trim()){
+                if (nameEle.val().trim()) {
                     let data = $("#form-date").serialize();
                     $.ajax({
                         url: "{% url 'app01:project_list' %}",
                         type: "post",
                         data: data,
                         dataType: "json",
-                        success: function(arg){
-                            if (arg.status){
+                        success: function (arg) {
+                            if (arg.status) {
                                 // 刷新页面
                                 location.reload();
-                            }else{
+                            } else {
                                 $('.error_msg').text('');
                                 $.each(arg.error_msg, function (k, v) {
-                                // console.log(k, v);
+                                    // console.log(k, v);
                                     $('#id_' + k).next().text(v[0])
                                 });
                             }
                         }
                     })
-                }else{
+                } else {
                     $('.error_msg').text('');
                     nameEle.next().text('请输入项目名！');
                     return false;

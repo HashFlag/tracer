@@ -3,7 +3,7 @@ import uuid
 import datetime
 from django import views
 from django.urls import reverse
-from app01.mymodels import account
+from app01.myform import account
 from utils.img_code import image_code
 from django.conf import settings
 from django.shortcuts import render, HttpResponse, redirect

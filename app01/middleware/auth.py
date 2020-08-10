@@ -9,6 +9,7 @@ class tracer:
     def __init__(self):
         self.user_obj = None
         self.price_polocy = None
+        self.project = None
 
 
 class LoginAuth(MiddlewareMixin):
@@ -45,7 +46,27 @@ class LoginAuth(MiddlewareMixin):
             # 没过期，就把当前策略添加到这里
             request.tracer_obj.price_policy = tra_obj.price_policy
 
+    def process_view(self, request, view, args, kwargs):
+        if not request.path.startswith('/app01/manage/'):
+            return
+        pro_id = kwargs.get('pro_id')
 
+        # 我创建的
+        project_obj = models.Project.objects.filter(
+            id=pro_id, creator=request.tracer_obj.user_obj)
+        if project_obj:
+            request.tracer_obj.project = project_obj.first()
+            return
+
+        # 我参与的
+        project_obj = models.ProjectUser.objects.filter(
+            project_id=pro_id, user=request.tracer_obj.user_obj
+        )
+        if project_obj:
+            request.tracer_obj.project = project_obj.first().project
+            return
+
+        return redirect('app01:project_list')
 
 
 
