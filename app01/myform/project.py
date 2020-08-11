@@ -3,7 +3,7 @@ from utils.bootstrap import BootstrapForm
 from django import forms
 from app01 import models
 from django.core.validators import ValidationError
-from app01.myform.widgets import ColorReadioSelect
+from app01.myform.widgets import ColorRadioSelect
 
 
 class ProjectModelForm(BootstrapForm, forms.ModelForm):
@@ -14,8 +14,8 @@ class ProjectModelForm(BootstrapForm, forms.ModelForm):
         fields = ['name', 'color', 'desc']
         widgets = {
             'desc': forms.Textarea,
-            # 'color': ColorReadioSelect
-            'color': forms.RadioSelect
+            'color': ColorRadioSelect,
+            # 'color': forms.RadioSelect,
         }
 
     def __init__(self, request, *args, **kwargs):

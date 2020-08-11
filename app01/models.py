@@ -59,7 +59,7 @@ class Project(models.Model):
         (7, "#9370DB"),
     )
     name = models.CharField(verbose_name="项目名称", max_length=32)
-    color = models.IntegerField(choices=choices, verbose_name="颜色")
+    color = models.IntegerField(choices=choices, verbose_name="颜色", default=1)
     desc = models.CharField(verbose_name="项目描述", max_length=64,
                             null=True, blank=True)
     use_space = models.IntegerField(verbose_name="项目已用空间", default=0)
@@ -80,5 +80,15 @@ class ProjectUser(models.Model):
     create_datetime = models.DateTimeField(verbose_name='加入时间', auto_now_add=True)
 
 
+class Wiki(models.Model):
+    title = models.CharField(max_length=32, verbose_name='标题')
+    content = models.TextField(verbose_name='内容')
+    project = models.ForeignKey('Project', verbose_name="项目")
+    parent = models.ForeignKey(
+        'Wiki', null=True, blank=True,
+        related_name='children', verbose_name="父文章"
+    )
+    deepth = models.IntegerField(verbose_name='深度', default=1)
 
-
+    def __str__(self):
+        return self.title

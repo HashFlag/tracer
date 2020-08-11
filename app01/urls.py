@@ -18,6 +18,8 @@ urlpatterns = [
         url(r'file/', file.File.as_view(), name='file'),
         url(r'setting/', setting.Setting.as_view(), name='setting'),
         url(r'wiki/', wiki.WiKi.as_view(), name='wiki'),
+        url(r'wiki_add/', wiki.WikiAdd.as_view(), name='wiki_add'),
+        url(r'wiki_data/', wiki.wiki_data, name='wiki_data'),
         url(r'statistics/', statistics.Statistics.as_view(), name='statistics'),
     ])),
 ]

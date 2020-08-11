@@ -1,0 +1,32 @@
+{% extends 'app01/wiki.html' %}
+
+{% block content-right %}
+    <form method="post">
+        {% csrf_token %}
+        {% for foo in form %}
+            <div class="form-group">
+                <label for="{{ foo.id_for_label }}">{{ foo.label }}</label>
+                {{ foo }}
+                <span class="error_msg">{{ foo.errors.0 }}</span>
+            </div>
+        {% endfor %}
+        <input type="submit" class="btn btn-primary btn-sm" value="提交">
+    </form>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

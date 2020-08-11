@@ -1,10 +1,99 @@
 {% extends "manage.html" %}
 {% block title %}wiki页面{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="/static/css/error.css">
+    <style>
+        .title {
+            border-right: 1px solid #ddd;
+            min-height: 550px;
+        }
+        .content {
+            margin-left: -1px;
+            border-left: 1px solid #ddd;
+            min-height: 550px;
+        }
+        .panel-body {
+            padding: 0;
+        }
 
-{% block content %}
-    <h1>这是wiki页面</h1>
+    </style>
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <div class="pull-left"><i class="fa fa-book"> wiki文档</i></div>
+                <div class="pull-right">
+                    <a href="{% url 'app01:wiki_add' request.tracer_obj.project.id %}" class="btn btn-success btn-xs">
+                        <i class="fa fa-plus-circle"> 新建</i>
+                    </a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="title col-md-3">
+                        <ul id="title-list"></ul>
+                    </div>
+                    <div class="content col-md-9">
+                        {% block content-right %}
+                            {% if wiki_obj %}
+                                <div>
+                                    {{ wiki_obj.content }}
+                                </div>
+                            {% else %}
+                            <div class="text-center" style="margin-top:40px;">
+                                <h5><b>《{{ request.tracer_obj.project.name }}》wiki文档库</b></h5>
+                                <div>
+                                    <a href="{% url 'app01:wiki_add' request.tracer_obj.project.id %}" style="font-size: 12px;">
+                                        <i class="fa fa-plus-circle"></i>
+                                        新建文章
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function(){
+            titleList();
+        })
+        var WIKI_URL = "{% url 'app01:wiki' request.tracer_obj.project.id %}";
+        function titleList(){
+            $.ajax({
+                url: "{% url 'app01:wiki_data' request.tracer_obj.project.id %}",
+                type: "get",
+                success:function(res){
+                    if (res.status){
+                        let ulEle = $('#title-list');
+                        $.each(res.data, function (index,value) {
+                            console.log(res.data);
+                            let url = WIKI_URL + '?wiki_id=' + value.id;
+                            let liEle = $('<li>').attr('id','id_'+value.id).html(`<a href=${url}>${value.title}</a>`).append($('<ul>'));
+
+                            if (!value.parent_id){
+                                ulEle.append(liEle);
+                            }
+                            else {
+                                $('#id_'+value.parent_id).children('ul').append(liEle)
+                            }
+
+                        })
+
+                    }
+                    else {
+                        alert('初始化目录失败！');
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}

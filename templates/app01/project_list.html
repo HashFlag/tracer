@@ -28,6 +28,18 @@
             color: black;
             text-decoration: none;
         }
+        .cycle {
+            display: inline-block;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+        }
+        [name='color']{
+            display: none;
+        }
+        .qua {
+            border:2px solid rgba(0,0,0,0.5);
+        }
     </style>
 {% endblock %}
 
@@ -172,14 +184,17 @@
         $(function () {
             bindSubmit();
             bindClear();
+            colorTab();
         })
 
+        // 清除报错信息
         function bindClear() {
             $(".clear-text").click(function () {
                 $('.error_msg').text('');
             })
         }
 
+        // 添加项目
         function bindSubmit() {
             $("#submit").click(function () {
                 let nameEle = $("#id_name");
@@ -211,6 +226,15 @@
 
             });
         }
+
+        // 添加项目选择颜色
+        function colorTab(){
+            $("[class='cycle']").click(function(){
+                $(this).addClass('qua').parent().siblings().find('.cycle').removeClass('qua');
+                $(this).css()
+            })
+        }
+
     </script>
 {% endblock %}
 

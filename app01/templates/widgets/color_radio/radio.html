@@ -1,3 +1,4 @@
+
 {% with id=widget.attrs.id %}<div{% if id %} id="{{ id }}"{% endif %}class="{{ widget.attrs.class }}">
     {% for group, options, index in widget.optgroups %}
             {% for option in options %}
@@ -9,3 +10,5 @@
                 {% endfor %}{% if group %}
   {% endif %}{% endfor %}
 </div>{% endwith %}
+
+
