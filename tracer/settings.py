@@ -128,11 +128,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
 ]
 
-SMS_TEMPLATE_ID = {
-    'login': 'SMS_198692283',  # 登录使用的模板id
-    'register': 'SMS_198672376',  # 修注册使用的模板id
-}
-
 # 白名单
 WHITE_LIST = [
     '/app01/register/',
@@ -147,6 +142,16 @@ WHITE_LIST = [
 IMAGE_CODE_EXPIRE = 60
 # 过期时间
 SMS_CODE_EXPIRE = 60
+
+# 阿里云参数
+ACCESSKEY_ID = "LTAI4GAo2L2wEXX7HqgLJTNz"
+ACCESSKEY_SERECT = "Xi6k8iIEeEG0Ag8jjxLKHHBxSv0Eyz"
+REGION_ID = "cn-beijing"
+SIGN_NAME = "bzboy"
+SMS_TEMPLATE_ID = {
+    'login': 'SMS_198692283',  # 登录使用的模板id
+    'register': 'SMS_198672376',  # 修注册使用的模板id
+}
 
 # 设置redis缓存
 CACHES = {

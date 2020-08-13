@@ -1,12 +1,21 @@
 {% extends 'app01/wiki.html' %}
-
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/plugins/editor.md/css/editormd.min.css">
+{% endblock %}
 {% block content-right %}
     <form method="post">
         {% csrf_token %}
         {% for foo in form %}
             <div class="form-group">
                 <label for="{{ foo.id_for_label }}">{{ foo.label }}</label>
-                {{ foo }}
+                {% if foo.name == 'content' %}
+                <div id="editor">
+                    {{ foo }}
+                </div>
+                {% else %}
+                    {{ foo }}
+                {% endif %}
                 <span class="error_msg">{{ foo.errors.0 }}</span>
             </div>
         {% endfor %}
@@ -14,7 +23,28 @@
     </form>
 {% endblock %}
 
-
+{% block js %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            initEditorMd();
+        });
+        // mdeditor的使用
+        function initEditorMd(){
+            var editor = editormd("editor", {
+                height:500,
+                imageUpload: true,
+                imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+                imageUploadURL: "{% url 'app01:wiki_upload' request.tracer_obj.project.id %}",  // 目标路径，上传文件传到那个路径中
+                // width: "100%",
+                // height: "100%",
+                // markdown: "xxxx",     // dynamic set Markdown text
+                // 指定文件在哪里找,就是静态文件查找路径，默认的查找路径一般是不对的
+                path : "/static/plugins/editor.md/lib/"  // Autoload modules mode, codemirror, marked... dependents libs path
+            });
+        }
+    </script>
+{% endblock %}
 
 
 

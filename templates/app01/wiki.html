@@ -6,17 +6,19 @@
     <style>
         .title {
             border-right: 1px solid #ddd;
-            min-height: 550px;
+            min-height: 590px;
+            padding-top: 15px;
         }
         .content {
             margin-left: -1px;
             border-left: 1px solid #ddd;
-            min-height: 550px;
+            min-height: 590px;
+            padding-top: 15px;
+            padding-bottom: 15px;
         }
         .panel-body {
             padding: 0;
         }
-
     </style>
 {% endblock %}
 
@@ -30,6 +32,21 @@
                         <i class="fa fa-plus-circle"> 新建</i>
                     </a>
                 </div>
+                {% if wiki_obj %}
+                    <div class="pull-right" style="margin-right: 15px;">
+                        <a href="{% url 'app01:wiki_delete' request.tracer_obj.project.id wiki_obj.id %}"
+                           class="btn btn-danger btn-xs">
+                            <i class="fa fa-remove" aria-hidden="true"></i> 删除</i>
+                        </a>
+                    </div>
+                    <div class="pull-right" style="margin-right: 15px;">
+                        <a href="{% url 'app01:wiki_edit' request.tracer_obj.project.id wiki_obj.id %}"
+                           class="btn btn-warning btn-xs">
+                            <i class="fa fa-pencil" aria-hidden="true"></i> 编辑</i>
+                        </a>
+                    </div>
+                {% endif %}
+
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -39,8 +56,8 @@
                     <div class="content col-md-9">
                         {% block content-right %}
                             {% if wiki_obj %}
-                                <div>
-                                    {{ wiki_obj.content }}
+                                <div id="previewmarkdown">
+                                    <textarea>{{ wiki_obj.content }}</textarea>
                                 </div>
                             {% else %}
                             <div class="text-center" style="margin-top:40px;">
@@ -65,7 +82,16 @@
     <script>
         $(function(){
             titleList();
+            initPreviewMarkdown();
         })
+
+        function initPreviewMarkdown() {
+            editormd.markdownToHTML('previewmarkdown',{
+                htmlDecode: "style,script,iframe",  // 防xss攻击等
+            })
+        }
+
+        // 文章目录列表
         var WIKI_URL = "{% url 'app01:wiki' request.tracer_obj.project.id %}";
         function titleList(){
             $.ajax({
@@ -75,7 +101,7 @@
                     if (res.status){
                         let ulEle = $('#title-list');
                         $.each(res.data, function (index,value) {
-                            console.log(res.data);
+                            // console.log(res.data);
                             let url = WIKI_URL + '?wiki_id=' + value.id;
                             let liEle = $('<li>').attr('id','id_'+value.id).html(`<a href=${url}>${value.title}</a>`).append($('<ul>'));
 
@@ -83,7 +109,7 @@
                                 ulEle.append(liEle);
                             }
                             else {
-                                $('#id_'+value.parent_id).children('ul').append(liEle)
+                                $('#id_'+value.parent_id).children('ul').append(liEle);
                             }
 
                         })
@@ -96,4 +122,12 @@
             })
         }
     </script>
+    <script src="/static/plugins/editor.md/editormd.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/flowchart.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/jquery.flowchart.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/marked.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/prettify.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/raphael.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/underscore.min.js"></script>
+    <script src="/static/plugins/editor.md/lib/sequence-diagram.min.js"></script>
 {% endblock %}

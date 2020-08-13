@@ -20,6 +20,9 @@ urlpatterns = [
         url(r'wiki/', wiki.WiKi.as_view(), name='wiki'),
         url(r'wiki_add/', wiki.WikiAdd.as_view(), name='wiki_add'),
         url(r'wiki_data/', wiki.wiki_data, name='wiki_data'),
+        url(r'wiki_upload/', wiki.wiki_upload, name='wiki_upload'),
+        url(r'wiki_delete/(?P<wiki_id>\d+)/', wiki.wiki_delete, name='wiki_delete'),
+        url(r'wiki_edit/(?P<wiki_id>\d+)/', wiki.WikiEdit.as_view(), name='wiki_edit'),
         url(r'statistics/', statistics.Statistics.as_view(), name='statistics'),
     ])),
 ]
