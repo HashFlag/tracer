@@ -4,6 +4,7 @@ from django import views
 from django.shortcuts import render, redirect, HttpResponse
 from app01.myform import project
 from app01 import models
+from libs.aliyun.oss import create_bucket
 
 
 class ProjectList(views.View):
@@ -33,7 +34,13 @@ class ProjectList(views.View):
         data = {'status': False, 'error_msg': ''}
         if form.is_valid():
             # form.instance是保存前的model对象，可以给他添加数据
+            bucket_name = "{}-{}".format(
+                uuid.uuid4(),
+                request.tracer_obj.user_obj.id)
+            create_bucket(bucket_name)
             form.instance.creator = request.tracer_obj.user_obj
+            form.instance.bucket = bucket_name
+            form.instance.region = "cn-beijing"
             form.save()
             data['status'] = True
             return HttpResponse(json.dumps(data))

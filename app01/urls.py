@@ -16,6 +16,7 @@ urlpatterns = [
         url(r'dashboard/', dashboard.Dashboard.as_view(), name='dashboard'),
         url(r'issues/', issues.Issues.as_view(), name='issues'),
         url(r'file/', file.File.as_view(), name='file'),
+        # url(r'file_delete/', file.File.as_view(), name='file'),
         url(r'setting/', setting.Setting.as_view(), name='setting'),
         url(r'wiki/', wiki.WiKi.as_view(), name='wiki'),
         url(r'wiki_add/', wiki.WikiAdd.as_view(), name='wiki_add'),

@@ -5,6 +5,7 @@ _upper_cases = _letter_cases.upper()  # 大写字母
 _numbers = ''.join(map(str, range(3, 10)))  # 数字
 init_chars = ''.join((_letter_cases, _upper_cases, _numbers))
 
+
 # font_type = ImageFont.truetype('static/fonts/Monaco.ttf', 30)
 def image_code(
         size=(120, 30),

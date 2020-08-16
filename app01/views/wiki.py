@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 # csrf_exempt装饰的接口，不会进行csrf_token认证，即便是全局配置配置了认证中间件
 # csrf_protect装饰的接口，必须通过csrftoken认证，即便是全局没有配置认证中间件
 from libs.aliyun import oss
+from utils.img_name import uuid_file_name
+
 
 class WiKi(views.View):
     """ wiki首页 """
@@ -88,11 +90,12 @@ def wiki_upload(request, pro_id):
     # 由于阿里云不支持django的文件上传格式（InMemoryUploadedFile）；
     # 所以需要.read读取字节文件进行上传操作
     img_obj = request.FILES.get("editormd-image-file").read()
-    img_name = request.FILES.get("editormd-image-file").name
+    img_name = uuid_file_name(request.FILES.get("editormd-image-file").name)
     url = oss.upload_file(img_name, img_obj)
     result['success'] = 1
     result['url'] = url
     return JsonResponse(result)
+
 
 
 

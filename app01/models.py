@@ -65,6 +65,9 @@ class Project(models.Model):
     use_space = models.IntegerField(verbose_name="项目已用空间", default=0)
     star = models.BooleanField(verbose_name="星标", default=False)
     creator = models.ForeignKey('UserInfo', verbose_name="创建者")
+    bucket = models.CharField(
+        verbose_name="oss桶", max_length=60)
+    region = models.CharField(verbose_name="oss区域", max_length=32)
     join_count = models.IntegerField(verbose_name="参与人数", default=1)
     create_time = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
@@ -81,6 +84,7 @@ class ProjectUser(models.Model):
 
 
 class Wiki(models.Model):
+    """ wiki文件 """
     title = models.CharField(max_length=32, verbose_name='标题')
     content = models.TextField(verbose_name='内容')
     project = models.ForeignKey('Project', verbose_name="项目")
@@ -92,3 +96,28 @@ class Wiki(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class FileRepository(models.Model):
+    """ 文件库 """
+    project = models.ForeignKey(verbose_name="项目", to="Project")
+    file_type_choices = (
+        (1, '文件'), (2, '文件夹'))
+    file_type = models.SmallIntegerField(verbose_name='类型', choices=file_type_choices)
+    name = models.CharField(verbose_name="文件夹名称", max_length=32, help_text="文件/文件夹名")
+    # key 远程文件名
+    key = models.CharField(verbose_name='文件存储在oss中的key', max_length=60, null=True, blank=True)
+    file_size = models.IntegerField(verbose_name="文件大小", null=True, blank=True)
+    file_path = models.CharField(verbose_name="文件路径", max_length=255, null=True, blank=True)
+    parent = models.ForeignKey(verbose_name="父级目录", to='self', related_name="child", null=True, blank=True)
+    update_user = models.ForeignKey(verbose_name='最近更新者', to="UserInfo")
+    update_datetime = models.DateTimeField(verbose_name="更新时间", auto_now=True)
+
+
+
+
+
+
+
+
+

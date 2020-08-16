@@ -1,4 +1,4 @@
-import datetime
+import time
 from utils.bootstrap import BootstrapForm
 from django import forms
 from app01 import models
@@ -11,7 +11,7 @@ class ProjectModelForm(BootstrapForm, forms.ModelForm):
 
     class Meta:
         model = models.Project
-        fields = ['name', 'color', 'desc']
+        fields = ['name', 'color', 'desc', ]
         widgets = {
             'desc': forms.Textarea,
             'color': ColorRadioSelect,
