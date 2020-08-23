@@ -6,6 +6,26 @@
         .panel-heading a {
             text-decoration: none;
         }
+
+        #upload {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #upload-files {
+            top: -1px;
+            left: -1px;
+            position: absolute;
+            opacity: 0;
+        }
+
+        #upload-process {
+            position: fixed;
+            width: 400px;
+            right: 15px;
+            bottom: 0px;
+            margin-bottom: 15px;
+        }
     </style>
 {% endblock %}
 
@@ -15,7 +35,7 @@
             <!-- Default panel contents -->
             <div class="panel-heading clearfix">
                 <div class="pull-left">
-                    <a href="{% url 'app01:file' request.tracer_obj.project.id %}"><i class="fa fa-home"></i> 文件库</a>
+                    <a href="{% url 'app01:file' request.tracer_obj.project.id %}"><i class="fa fa-home"> 文件库</i></a>
                     {% if breadcrumb_list %}
                         {% for foo in breadcrumb_list %}
                             <i class="fa fa-caret-right" aria-hidden="true"></i>
@@ -26,8 +46,13 @@
                     {% endif %}
                 </div>
                 <div class="pull-right">
-                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addModal" data-whatever="新建文件夹">
-                        <i class="fa fa-plus-circle"></i> 新建文件夹
+                    <button type="button" class="btn btn-primary btn-xs" id="upload">
+                        <i class="fa fa-upload" aria-hidden="true"> 上传文件</i>
+                        <input type="file" multiple name="files" id="upload-files">
+                    </button>
+                    <button type="button" class="btn btn-success btn-xs" data-toggle="modal" data-target="#addModal"
+                            data-whatever="新建文件夹">
+                        <i class="fa fa-plus-circle"> 新建文件夹</i>
                     </button>
                 </div>
             </div>
@@ -35,20 +60,20 @@
             <!-- Table -->
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>文件大小</th>
-                        <th>更新者</th>
-                        <th>更新时间</th>
-                        <th>操作</th>
-                    </tr>
+                <tr>
+                    <th>名称</th>
+                    <th>文件大小</th>
+                    <th>更新者</th>
+                    <th>更新时间</th>
+                    <th>操作</th>
+                </tr>
                 </thead>
                 <tbody>
                 {% for foo in file_obj_list %}
                     <tr>
                         <td>
                             <a href="{% url 'app01:file' request.tracer_obj.project.id %}?folder_id={{ foo.id }}">
-                                <i class="fa fa-folder" aria-hidden="true"></i> {{ foo.name }}
+                                <i class="fa fa-folder" aria-hidden="true"> {{ foo.name }}</i>
                             </a>
                         </td>
                         {% if foo.file_type == 2 %}
@@ -61,18 +86,18 @@
                         <td>
                             {% if foo.file_type == 2 %}
                                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                                    data-target="#addModal" data-whatever="编辑文件夹"
+                                        data-target="#addModal" data-whatever="编辑文件夹"
                                         data-fid="{{ foo.id }}" data-name="{{ foo.name }}">
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                 </button>
                             {% else %}
                                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                                    data-target="#myModal">
+                                        data-target="#myModal" data-fid="{{ foo.id }}">
                                     <i class="fa fa-cloud-download" aria-hidden="true"></i>
                                 </button>
                             {% endif %}
                             <button type="button" class="btn btn-danger btn-xs" data-toggle="modal"
-                                    data-target="#myModal">
+                                    data-target="#alertModal" data-fid="{{ foo.id }}">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                             </button>
                         </td>
@@ -81,6 +106,28 @@
                 </tbody>
             </table>
         </div>
+        <div id="upload-process" class="panel panel-primary hide">
+            <div class="panel-heading"><i class="fa fa-cloud-upload"></i> 上传进度</div>
+            <table class="table">
+                <tbody id="process-list">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="hide">
+        <table id="process-model">
+            <tr>
+                <td>
+                    <div class="name"></div>
+                    <div class="progress" style="margin-bottom: 0; margin-top: 2px;">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0"
+                             aria-valuemax="100"></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- Modal: 添加文件夹 -->
@@ -113,24 +160,50 @@
         </div>
     </div>
 
+    <!-- Modal: 删除文件/文件夹 -->
+    <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4>是否要删除？</h4>
+                <p>文件夹中的所有文件和文件夹将会被删除哦？！</p>
+                <p class="clearfix">
+                    <span class="pull-right">
+                        <button type="button" class="btn btn-default btn-md" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-danger btn-md" id="delete">删除</button>
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
-    <script>
+    <script src="/static/plugins/ali-oss/aliyun-oss-sdk.min.js"></script>
+    <script type="text/javascript">
+        var DELETE_URL = "{% url 'app01:file_delete' request.tracer_obj.project.id %}";
+        var GET_CREDENTIAL_URL = '{% url "app01:cos_credential" request.tracer_obj.project.id %}'
+        var zimuIdDict = {}
         $(function () {
-            addTab();
+            addTabEvent();
+            deleteTabEvent();
             initModel();
+            bindChangeFilePut();
         })
-        // 通过内置方法自定义弹窗
-        function initModel(){
-            $("#addModal").on("show.bs.modal", function(event){
-                var button = $(event.relatedTarget)  // Button that triggered the modal
-                var recipient = button.data('whatever')  // Extract info from data-* attributes  //获取到了新建文件夹、编辑文件夹
-                var fid = button.data('fid')  // Extract info from data-* attributes  //data-fid,获取点击的那条记录的id值
-                var name = button.data('name')  // Extract info from data-* attributes  //data-fid,获取文件夹名称
+
+        // 通过内置方法自定义js弹窗效果
+        function initModel() {
+            // 添加和修改弹窗
+            $("#addModal").on("show.bs.modal", function (event) {
+                let button = $(event.relatedTarget)  // Button that triggered the modal
+                let recipient = button.data('whatever')  // Extract info from data-* attributes  //获取到了新建文件夹、编辑文件夹
+                let fid = button.data('fid')  // Extract info from data-* attributes  //data-fid,获取点击的那条记录的id值
+                let name = button.data('name')  // Extract info from data-* attributes  //data-fid,获取文件夹名称
                 // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
                 // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-                var modal = $(this)
+                let modal = $(this)
                 modal.find('.modal-title').text(recipient)
                 // 先清空之前的内容
                 $('#form-date')[0].reset();  //除了type=hidden的input标签，都会置空
@@ -139,11 +212,18 @@
                 // 将用户点击的那一行的文件夹名称，要放到弹框中的input标签中
                 modal.find('#fid').val(fid)
                 modal.find('#id_name').val(name);
-            })
+            });
+
+            // 删除弹窗
+            $("#alertModal").on("show.bs.modal", function (event) {
+                let button = $(event.relatedTarget);
+                let fid = button.data('fid');
+                $("#delete").attr('fid', fid);
+            });
         }
 
-        // 添加文件夹
-        function addTab() {
+        // 添加(编辑)文件夹
+        function addTabEvent() {
             $("#submit").click(function () {
                 data = $("#form-date").serialize();
                 $.ajax({
@@ -156,7 +236,7 @@
                             location.reload();
                         } else {
                             $.each(arg.error_msg, function (k, v) {
-                                ret = $('#id_'+k).next().text(v[0]);
+                                $('#id_' + k).next().text(v[0]);
                             })
                         }
                     }
@@ -164,9 +244,142 @@
             })
         }
 
-        // 编辑文件夹
-        function changTab(){
+        // 删除文件夹（包括文件夹中的文件）
+        function deleteTabEvent() {
+            $("#delete").click(function () {
+                $.ajax({
+                    url: DELETE_URL,
+                    type: "get",
+                    data: {fid: $(this).attr('fid')},
+                    success: function (arg) {
+                        if (arg.status) {
+                            location.reload();
+                        }
+                    }
+                })
+            })
+        }
 
+        const progress = (p, _checkpoint) => {
+            let pro = $('#' + zimuIdDict[_checkpoint.name]);
+            let percent = p * 100 + '%';
+            pro.text(percent);
+            pro.css('width', percent);
+            // console.log('p:', p);  // p:Object的上传进度。
+            // console.log('_checkpoint:', _checkpoint);  // _checkpoint:Object分片上传的断点信息。
+            if (p === 1) {
+                pro.parent().parent().parent().html('');
+            }
+        };
+
+        // js异步上传文件上传
+        async function multipartUpload(filename, fileObject) {
+
+            try {
+                // object-name可以自定义为文件名（例如file.txt）或目录（例如abc/test/file.txt）的形式，实现将文件上传至当前Bucket或Bucket下的指定目录。
+                const result = await client.multipartUpload(filename, fileObject, {
+                    progress,
+                    // meta是用户自定义的元数据，通过head接口可以获取到Object的meta数据。
+                    meta: {
+                        year: 2020,
+                        people: 'test',
+                    },
+                });
+
+                // console.log('result:', result);  // 上传成功后返回的信息
+                // const head = await client.head(filename);
+                // console.log('head', head);
+                $('#upload-process').addClass('hide');
+
+            } catch (e) {
+                // 捕获超时异常。
+                if (e.code === 'ConnectionTimeoutError') {
+                    console.log('TimeoutError');
+                    // do ConnectionTimeoutError operation
+                }
+                console.log(e);
+            }
+        }
+
+        // 随机字母
+        function zimu(len) {
+            len = len || 1;
+            let $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let maxPos = $chars.length;
+            let pwd = '';
+            for (let i = 0; i < len; i++) {
+                pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+            }
+            return pwd
+        }
+
+        // 获取临时认证，后端数据鉴权
+        function bindChangeFilePut() {
+            $("#upload-files").change(function () {
+                $('#process-list').empty();
+                // 获取上传的文件
+                let checkFileList = []
+                let files = $(this)[0].files;
+                $.each(files, function (index, fileObject) {
+                    checkFileList.push(
+                        {name: fileObject.name, size: fileObject.size}
+                    )
+                });
+
+                // 获取前端临时凭证的js部分
+                $.post(GET_CREDENTIAL_URL, JSON.stringify(checkFileList), function (data) {
+                    if (data.status) {
+                        client = new OSS({
+                            region: 'oss-' + data.region,
+                            //云账号AccessKey有所有API访问权限，建议遵循阿里云安全最佳实践，创建并使用STS方式来进行API访问
+                            accessKeyId: data.AccessKeyId,
+                            accessKeySecret: data.AccessKeySecret,
+                            stsToken: data.SecurityToken,
+                            bucket: data.bucket
+                        });
+
+                        $.each(files, function (index, fileObject) {
+                            $("#upload-process").removeClass("hide");
+
+                            // 把克隆后处理好的tr标签放到process-list后面展示
+                            var trEle = $("#process-model").find('tr').clone();
+                            let fileName = fileObject.name;
+                            trEle.find(".name").text(fileName);
+                            let zimuID = zimu(4);
+                            trEle.find(".progress-bar").attr('id', zimuID);
+
+                            // 文件名称进行处理，避免上传文件后文件名重复后覆盖掉文件
+                            $("#process-list").append(trEle);
+                            let filename = getUUID(fileName, fileObject.size);
+                            zimuIdDict[filename] = zimuID;
+
+                            if (fileObject.size < 102400) {
+                                // 普通异步文件上传，因为小文件无法分片上传
+                                client.put(filename, fileObject).then(function (r1) {
+                                    console.log('ok');
+                                }).catch(function (err) {
+                                    console.error('error: %j', err);
+                                });
+                            }else{
+                                // 异步分片文件上传
+                                multipartUpload(filename, fileObject);
+                            }
+                        });
+                    } else {
+                        alert(data.error);
+                    }
+                });
+            });
+        }
+
+        // 自定义文件名UUID
+        function getUUID(filename, filesize) {
+            let file_size = String(filesize);
+            let arr = filename.split('.');
+            let file_last = arr[arr.length - 1];
+            let file_first = zimu(10);
+            let file_name = file_first + file_size + '.' + file_last;
+            return file_name
         }
     </script>
 {% endblock %}

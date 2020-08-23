@@ -14,16 +14,24 @@ urlpatterns = [
     url(r'^project/unstar/(\w+)/(\d+)/', project.project_unstar, name="project_unstar"),
     url(r'^manage/(?P<pro_id>\d+)/', include([
         url(r'dashboard/', dashboard.Dashboard.as_view(), name='dashboard'),
+        # 问题管理
         url(r'issues/', issues.Issues.as_view(), name='issues'),
+        url(r'issues_detail/(?P<issues_id>\d+)/', issues.IssuesDetail.as_view(), name='issues_detail'),
+        url(r'issues_record/(?P<issues_id>\d+)/', issues.IssuesRecord.as_view(), name='issues_record'),
+        # 文件页面
         url(r'file/', file.File.as_view(), name='file'),
-        # url(r'file_delete/', file.File.as_view(), name='file'),
+        url(r'file_delete/', file.FileDelete.as_view(), name='file_delete'),
+        url(r'cos/credential/$', file.cos_credential, name='cos_credential'),
+        # 配置页面
         url(r'setting/', setting.Setting.as_view(), name='setting'),
+        # wiki页面
         url(r'wiki/', wiki.WiKi.as_view(), name='wiki'),
         url(r'wiki_add/', wiki.WikiAdd.as_view(), name='wiki_add'),
         url(r'wiki_data/', wiki.wiki_data, name='wiki_data'),
         url(r'wiki_upload/', wiki.wiki_upload, name='wiki_upload'),
         url(r'wiki_delete/(?P<wiki_id>\d+)/', wiki.wiki_delete, name='wiki_delete'),
         url(r'wiki_edit/(?P<wiki_id>\d+)/', wiki.WikiEdit.as_view(), name='wiki_edit'),
+        #
         url(r'statistics/', statistics.Statistics.as_view(), name='statistics'),
     ])),
 ]

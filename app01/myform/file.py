@@ -31,8 +31,19 @@ class FileModelForm(BootstrapForm, forms.ModelForm):
         return name
 
 
+class FilteMsgModelForm(forms.ModelForm):
+    etag = forms.CharField(label='etag')
 
+    class Meta:
+        model = models.FileRepository
+        exclude = ['project', 'file_type', 'update_user', 'update_datetime', ]
 
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def clean_file_path(self):
+        return 'https://{}'.format(self.cleaned_data.get('file_path'))
 
 
 

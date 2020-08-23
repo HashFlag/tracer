@@ -34,14 +34,24 @@ class ProjectList(views.View):
         data = {'status': False, 'error_msg': ''}
         if form.is_valid():
             # form.instance是保存前的model对象，可以给他添加数据
-            bucket_name = "{}-{}".format(
+            bucket_name = "{}-827{}".format(
                 uuid.uuid4(),
                 request.tracer_obj.user_obj.id)
             create_bucket(bucket_name)
             form.instance.creator = request.tracer_obj.user_obj
             form.instance.bucket = bucket_name
             form.instance.region = "cn-beijing"
-            form.save()
+            instance = form.save()
+            # 保存问题类型
+            issues_list = []
+            for item in models.IssuesType.PROJECT_INIT_LIST:
+                issues_list.append(
+                    models.IssuesType(
+                        title=item,
+                        project=instance,
+                    )
+                )
+            models.IssuesType.objects.bulk_create(issues_list)  # 批量创建数据
             data['status'] = True
             return HttpResponse(json.dumps(data))
         else:

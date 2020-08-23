@@ -147,11 +147,15 @@ SMS_CODE_EXPIRE = 60
 ACCESSKEY_ID = "LTAI4GAo2L2wEXX7HqgLJTNz"
 ACCESSKEY_SERECT = "Xi6k8iIEeEG0Ag8jjxLKHHBxSv0Eyz"
 REGION_ID = "cn-beijing"
-SIGN_NAME = "bzboy"
+SIGN_NAME = "bzboy"  # 签名
+ROLE_ARN = "acs:ram::1609891927356009:role/ramtracer"
 SMS_TEMPLATE_ID = {
     'login': 'SMS_198692283',  # 登录使用的模板id
     'register': 'SMS_198672376',  # 修注册使用的模板id
 }
+
+PER_PAGE = 5
+PAGER_PAGE_COUNT = 10
 
 # 设置redis缓存
 CACHES = {
