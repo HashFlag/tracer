@@ -38,9 +38,7 @@ class CheckFilter:
             if 'page' in query_dict:
                 query_dict.pop('page')
 
-            # print(query_dict)
             params = query_dict.urlencode()  # status=2&status=3
-            # print(query_dict.urlencode())
             current_path = self.request.path
             url = '{}?{}'.format(current_path, params)
             html = '<a href="{url}"><input type="checkbox" {ck}> {name}</a>'
@@ -74,9 +72,7 @@ class SelectFilter:
             query_dict.setlist(self.name, value_list)  # status=2 status=3 & issues_type=1
             if 'page' in query_dict:
                 query_dict.pop('page')
-            # print(query_dict)
             params = query_dict.urlencode()  # status=2&status=3
-            # print(query_dict.urlencode())
             current_path = self.request.path
             url = '{}?{}'.format(current_path, params)
             html = '<option value="{url}" {ck}>{name}</option>'
@@ -212,7 +208,6 @@ def issues_change(request, pro_id, issues_id):
     post_dict = json.loads(request.body.decode('utf-8'))
     name = post_dict.get('name')  # 拿到字段名称
     value = post_dict.get('value')  # 拿到对应字段改后的值
-    print(name, value)
     field_obj = models.Issues._meta.get_field(name)  # 获取字段的实例化对象
 
     # 实时添加修改记录

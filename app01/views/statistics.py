@@ -30,7 +30,6 @@ def statistics_priority(request, pro_id):
         '''
     start = request.GET.get('start')
     end = request.GET.get('end')
-    print(start,end)
 
     # 构造字典
     data_dict = OrderedDict()
@@ -39,11 +38,11 @@ def statistics_priority(request, pro_id):
 
     result = models.Issues.objects.filter(project_id=pro_id, create_datetime__gte=start,
                                           create_datetime__lt=end).values('priority').annotate(c=Count('id'))
-    print(">>>result:", result)
+
     # [{'priority':1,'c':2},{'priority':2,'c':3}]
     for item in result:
         data_dict[item['priority']]['y'] = item['c']
-    print(">>>:", data_dict)
+
     return JsonResponse({'status': True, 'data': list(data_dict.values())})
 
 
