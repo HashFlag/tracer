@@ -37,11 +37,13 @@ class Payment(views.View):
         origin_price = number * policy_obj.price
         balance_price = 0
         obj = None
-        # 抵扣，之前购买过，并且还没有过期，那我们将原套餐的剩余前数做一下抵扣
+        # 抵扣，之前购买过，并且还没有过期，那我们将原套餐的剩余钱数做一下抵扣
+        print(">>>:", request.tracer_obj.price_policy.catogory)
         if request.tracer_obj.price_policy.catogory != 1:
             obj = models.Transaction.objects.filter(status=2, user=request.tracer_obj.user_obj).order_by(
                 '-id').first()
             # todo 需要判断是否已经过期了
+            # if obj.price_policy.catogory == 1
             # 总天数
             total_days = obj.end_datetime - obj.start_datetime
 
@@ -135,7 +137,7 @@ def pay_notify(request):
         # sign = params.pop('sign')
         # status = ali_pay.verify(params, sign)
         # if status:
-            # 修改订单状态
+        # 修改订单状态
         order_id = params.get('out_trade_no')
         order_obj = models.Transaction.objects.filter(order=order_id).first()
         order_obj.status = 2

@@ -74,7 +74,6 @@ def project_star(request, star_type, pid):
 
 def project_unstar(request, start_type, pid):
     """ 移除星标 """
-    print(1234)
     if start_type == 'my':
         models.Project.objects.filter(id=pid, creator=request.tracer_obj.user_obj).update(star=False)
         return redirect('app01:project_list')

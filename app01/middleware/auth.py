@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 class tracer:
     def __init__(self):
         self.user_obj = None
-        self.price_polocy = None
+        self.price_policy = None
         self.project = None
 
 

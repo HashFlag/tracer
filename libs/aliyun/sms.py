@@ -5,9 +5,9 @@ from django.conf import settings
 
 def send_sms(template, phone, template_code):
     client = AcsClient(
-        settings.AccessKey_ID,
-        settings.AccessKey_Secret,
-        settings.RegionId)
+        settings.ACCESSKEY_ID,
+        settings.ACCESSKEY_SERECT,
+        settings.REGION_ID)
     # 短信里面的 我的AccessKey ID 我的Access Key Secret
     request = CommonRequest()
     request.set_accept_format('json')
