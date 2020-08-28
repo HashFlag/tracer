@@ -1,10 +1,16 @@
 import oss2
 import json
+import datetime
 from django.conf import settings
 from aliyunsdkcore import client
 from oss2.models import BucketCors, CorsRule
 from aliyunsdkcore.profile import region_provider
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
+from oss2.models import (LifecycleExpiration, LifecycleRule,
+                        BucketLifecycle, AbortMultipartUpload,
+                        TaggingRule, Tagging, StorageTransition,
+                        NoncurrentVersionStorageTransition,
+                        NoncurrentVersionExpiration)
 
 
 def upload_file(img_name, img_obj, user_bucket="bzboy-tracer"):
@@ -58,14 +64,50 @@ def delete_files(bucket_name, file_list, region="cn-beijing"):
 
     # 删除文件。<yourObjectName>表示删除OSS文件时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg。
     # 批量删除文件。每次最多删除1000个文件。
+
     result = bucket.batch_delete_objects(file_list)
     # 打印成功删除的文件名。
-    print('\n'.join(result.deleted_keys))
+    # print('\n'.join(result.deleted_keys))
 
 
-def delete_bucket(bucket):
+def delete_bucket_file(bucket_name, region="cn-beijing"):
+    """ 清空春存储桶文件/文件碎片 """
+    auth = oss2.Auth(settings.ACCESSKEY_ID, settings.ACCESSKEY_SERECT)
+    bucket = oss2.Bucket(auth, 'http://oss-' + region + '.aliyuncs.com', bucket_name)
+    date_time = datetime.datetime.now()
+    # 设置object过期规则，指定日期之前创建的文件过期。
+    rule1 = LifecycleRule('rule1', 'tests1/',
+                          status=LifecycleRule.ENABLED,
+                          expiration=LifecycleExpiration(
+                              created_before_date=datetime.date(
+                                  date_time.year, date_time.month, date_time.day
+                              )
+                          )
+                          )
+    # 设置分片过期规则，指定日期之前的分片过期。
+    rule2 = LifecycleRule('rule2', 'tests2/',
+                          status=LifecycleRule.ENABLED,
+                          abort_multipart_upload=AbortMultipartUpload(
+                              created_before_date=datetime.date(
+                                  date_time.year, date_time.month, date_time.day
+                              )
+                          )
+                          )
+    lifecycle = BucketLifecycle([rule1, rule2, ])
+    bucket.put_bucket_lifecycle(lifecycle)
+
+
+def delete_bucket(bucket_name, region="cn-beijing"):
     """ 删除存储桶 """
-    pass
+    auth = oss2.Auth(settings.ACCESSKEY_ID, settings.ACCESSKEY_SERECT)
+    bucket = oss2.Bucket(auth, 'http://oss-' + region + '.aliyuncs.com', bucket_name)
+    try:
+        # 删除存储空间。
+        bucket.delete_bucket()
+    except oss2.exceptions.BucketNotEmpty:
+        return 'bucket is not empty.'
+    except oss2.exceptions.NoSuchBucket:
+        return 'bucket does not exist.'
 
 
 def credential(region="cn-beijing"):
@@ -89,7 +131,6 @@ def credential(region="cn-beijing"):
     # 发起请求，并得到响应
     response = clt.do_action_with_exception(request)
     response = json.loads(response)
-    # print(response)
     result_dict = dict(
         AccessKeyId=response['Credentials']['AccessKeyId'],
         AccessKeySecret=response['Credentials']['AccessKeySecret'],

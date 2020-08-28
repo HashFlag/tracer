@@ -1,10 +1,215 @@
 {% extends "manage.html" %}
 {% block title %}stat页面{% endblock %}
 
-{% block css %}{% endblock %}
-
-{% block content %}
-    <h1>这是stat页面</h1>
+{% block css %}
+    <link rel="stylesheet" href="/static/plugins/daterangepicker/daterangepicker.css">
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block content %}
+        <div class="container-fluid" style="margin-top: 20px;">
+        <div>
+            <div class="input-group" style="width: 300px;">
+                <span class="input-group-addon">日期范围</span>
+                <input id="rangePicker" type="text" class="form-control">
+            </div>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-bar-chart" aria-hidden="true"></i> 人员工作进度
+                    </div>
+                    <div class="panel-body">
+                        <div id="people" style="height: 300px;">
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-pie-chart" aria-hidden="true"></i> 优先级统计
+                    </div>
+                    <div class="panel-body">
+                        <div id="priority" style="height: 300px;">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="/static/plugins/daterangepicker/moment.min.js"></script>
+    {#  moment必须在daterangepicker之前引入  #}
+    <script src="/static/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="/static/plugins/highcharts/highcharts.js"></script>
+    <script>
+        $(function () {
+            initDateRangePicker();
+            priority(moment().format('YYYY-MM-DD'), moment().add(1, 'days').format('YYYY-MM-DD'));
+            people(moment().format('YYYY-MM-DD'), moment().add(1, 'days').format('YYYY-MM-DD'));
+        });
+
+        // 日期选择
+        function initDateRangePicker() {
+            let options = {
+                maxDate: moment(), // 日期选择最大只能到今天
+                alwaysShowCalendars: true, // 默认都弹出日历选择
+                showWeekNumbers: true, // 显示星期
+                ranges: { // 左侧栏的几个选项
+                    '今天': [moment(), moment()],  // 今天到今天
+                    '昨天': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],  //减去1天
+                    '最近7天': [moment().subtract(6, 'days'), moment()],  //减去6天
+                    '最近30天': [moment().subtract(29, 'days'), moment()],  //减去29天
+                    '本月': [moment().startOf('month'), moment().endOf('month')]  //本月
+                },
+                locale: { //配置，可以进行一些中文配置
+                    format: 'YYYY-MM-DD',
+                    separator: ' 至 ',
+                    applyLabel: '确定',
+                    cancelLabel: '取消',
+                    fromLabel: '开始',
+                    toLabel: '结束',
+                    customRangeLabel: '自定义',
+                    weekLabel: 'W',
+                    daysOfWeek: ['一', '二', '三', '四', '五', '六', '日'],
+                    monthNames: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                    firstDay: 1
+                }
+            };
+
+            $('#rangePicker').daterangepicker(options,function (start, end, label) {
+                // console.log('>>>>>',start, end)
+                priority(start.format('YYYY-MM-DD'), end.add(1, 'days').format('YYYY-MM-DD'));
+                people(start.format('YYYY-MM-DD'), end.add(1, 'days').format('YYYY-MM-DD'));
+            })
+        }
+
+        // 饼图优先级统计
+        function priority(start, end) {
+            let config = {
+                chart: {
+                    type: 'pie' // 饼图
+                },
+                title: {
+                    text: null
+                },
+                credits: {
+                    enabled: false // 关闭版权信息
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y}</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    name: '优先级',
+                    colorByPoint: true,
+                    data: [
+                        {'name':'高','y':12}
+                    ]
+                }]
+            };
+            //Highcharts.chart('priority', config);
+            $.ajax({
+                url: "{% url 'app01:statistics_priority' request.tracer_obj.project.id %}",
+                type: "GET",
+                data: {start: start, end: end},
+                dataType: "JSON",
+                success: function (res) {
+                    // console.log(res.data);
+                    config.series[0].data = res.data;
+                    Highcharts.chart('priority', config);
+                }
+            })
+        }
+
+        //人员任务进度
+        function people(start, end) {
+            let config = {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: null
+                },
+                credits: {
+                    enabled: false // 关闭版权信息
+                },
+                xAxis: { // 横坐标显示几列
+                    categories: ['吴超', '王振', '刘伟']
+                },
+
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '问题数量'
+                    },
+                    stackLabels: {  // 堆叠数据标签
+                        enabled: true,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                        }
+                    }
+                },
+                legend: {
+                    align: 'center',
+                    verticalAlign: 'top'
+
+                },
+                tooltip: {
+                    formatter: function () {
+                        return '<b>' + this.x + '</b><br/>' +
+                            this.series.name + ': ' + this.y + '<br/>' +
+                            '总量: ' + this.point.stackTotal;
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'normal',
+                        dataLabels: {
+                            enabled: false
+                        }
+                    }
+                },
+                series: [{
+                    name: '新建',
+                    data: [5, 3, 4] //和横轴坐标是一一对应的
+                }, {
+                    name: '处理中',
+                    data: [2, 2, 3]
+                }, {
+                    name: '已解决',
+                    data: [3, 4, 4]
+                }]
+            };
+            //Highcharts.chart('people', config);
+            $.ajax({
+                url: "{% url 'app01:statistics_people' request.tracer_obj.project.id %}",
+                type: "GET",
+                data: {start: start, end: end},
+                dataType: "JSON",
+                success: function (res) {
+                    // console.log(res);
+                    config.xAxis.categories = res.categories;
+                    config.series = res.data;
+                    Highcharts.chart('people', config);
+                }
+            })
+        }
+    </script>
+{% endblock %}

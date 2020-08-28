@@ -1,10 +1,43 @@
 {% extends "manage.html" %}
-{% block title %}设置页面{% endblock %}
+{% block title %}设置{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+    <style>
+        .choose {
+            border-left: 2px solid goldenrod !important;
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-    <h1>这是设置页面</h1>
+    <div class="container clearfix" style="margin-top: 20px;">
+        <div class="col-sm-3">
+            <div class="panel panel-default">
+                <div class="panel-heading" style="background-color:transparent;font-weight: bold;">
+                    个人中心
+                </div>
+                <div class="list-group" style="border-radius: 0">
+                    <div>
+                        <a href="#"
+                           class="list-group-item choose">我的资料</a>
+                        <a href="{% url 'app01:setting_password' request.tracer_obj.project.id %}"
+                           class="list-group-item">修改密码</a>
+                        <a href="{% url 'app01:setting_delete' request.tracer_obj.project.id %}"
+                           class="list-group-item">删除项目</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9">
+            <div class="panel panel-default">
+                <div class="panel-heading"><i class="fa fa-address-card-o" aria-hidden="true"></i> 我的资料</div>
+                <div class="panel-body">
+                    <h4 style="text-align: center;">系统设置</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}{% endblock %}

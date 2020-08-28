@@ -1,5 +1,5 @@
 {% extends "manage.html" %}
-{% block title %}问题详情页面{% endblock %}
+{% block title %}问题详情{% endblock %}
 
 
 {% block css %}
@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/static/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
     <link rel="stylesheet" href="/static/plugins/bootstrap-select/css/bootstrap-select.min.css">
     <style>
+        #comment-list{
+            height: 420px;
+            overflow: auto;
+        }
         .comment-area .item {
             margin-top: 20px;
         }
@@ -38,7 +42,7 @@
             padding-left: 55px;
         }
 
-        .comment-area .error-msg {
+        .comment-area .error_msg {
             color: red;
         }
 
@@ -60,7 +64,7 @@
 
 
 {% block content %}
-        <div class="container-fluid clearfix" style="padding: 20px 0;">
+    <div class="container-fluid clearfix" style="padding: 20px 0;">
 
         <div class="col-sm-7">
             <div class="panel panel-default">
@@ -80,9 +84,9 @@
                                     <div>
                                         {{ form.issues_type }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
-                                <div class="error-msg"></div>
+                                <div class="error_msg"></div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -93,9 +97,9 @@
                                     <div>
                                         {{ form.subject }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
-                                <div class="error-msg"></div>
+                                <div class="error_msg"></div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -106,9 +110,9 @@
                                     <div>
                                         {{ form.module }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
-                                <div class="error-msg"></div>
+                                <div class="error_msg"></div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -119,9 +123,9 @@
                                     <div id="editor">
                                         {{ form.desc }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
-                                <div class="error-msg"></div>
+                                <div class="error_msg"></div>
                             </div>
                         </div>
                         <div class="form-group clearfix">
@@ -132,7 +136,7 @@
                                     <div>
                                         {{ form.status }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
 
                                 </div>
                             </div>
@@ -143,7 +147,7 @@
                                     <div>
                                         {{ form.priority }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
 
                                 </div>
                             </div>
@@ -154,7 +158,7 @@
                                 <label for="inputPassword3" class="col-md-4 control-label">指派给</label>
                                 <div class="col-md-8">
                                     {{ form.assign }}
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
                             </div>
 
@@ -164,7 +168,7 @@
 
                                     {{ form.attention }}
 
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -180,7 +184,7 @@
                                         </span>
                                         {{ form.start_date }}
                                     </div>
-                                    <span class="error-msg"></span>
+                                    <span class="error_msg"></span>
 
                                 </div>
                             </div>
@@ -195,7 +199,7 @@
                                         </span>
                                         {{ form.end_date }}
                                     </div>
-                                    <span class="error-msg"></span>
+                                    <span class="error_msg"></span>
                                 </div>
                             </div>
                         </div>
@@ -206,7 +210,7 @@
                                     <div>
                                         {{ form.mode }}
                                     </div>
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
                             </div>
 
@@ -214,7 +218,7 @@
                                 <label for="inputPassword3" class="col-md-4 control-label"> 父问题</label>
                                 <div class="col-md-8">
                                     {{ form.parent }}
-                                    <div class="error-msg"></div>
+                                    <div class="error_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -230,14 +234,14 @@
                     <i class="fa fa-search" aria-hidden="true"></i> 操作记录
                 </div>
                 <div class="panel-body comment-area">
-                    <div class="comment-list">
+                    <div class="comment-list" id="comment-list">
 
                     </div>
                     <hr/>
                     <div class="comment-text" id="commentText">
                         <div class="form-group">
                             <textarea id="content" rows="6" class="form-control" placeholder="请输入要回复的内容"></textarea>
-                            <span class="error-msg"></span>
+                            <span class="error_msg"></span>
                         </div>
 
                         <input class="btn btn-primary" type="button" id="btnSubmit" value="提 交">
@@ -287,14 +291,17 @@
     <script src="/static/plugins/bootstrap-select/js/i18n/defaults-zh_CN.min.js"></script>
     <script>
         var WIKI_UPLOAD_URL = "{% url 'app01:wiki_upload' request.tracer_obj.project.id %}";
-        var INIT_RECORD_URL = "{% url 'app01:issues_record' request.tracer_obj.project.id issues_obj.id %}"
-        var EDITOR
+        var INIT_RECORD_URL = "{% url 'app01:issues_record' request.tracer_obj.project.id issues_obj.id %}";
+        var ISSUES_CHANGE_URL = "{% url 'app01:issues_change' request.tracer_obj.project.id issues_obj.id %}"
+        var EDITOR;
         $(function () {
             initEditorMd();
             initDatePicker();
             initIssuesRecord();
             bindReply();
             bindCancelReply();
+            bindSubmitReply();
+            bindChangeIssues();
         });
 
         /* 添加对话框：初始化时间选择 */
@@ -333,17 +340,53 @@
                 }
             })
         }
+
+        // 更记录，绑定change事件
+        function bindChangeIssues(){
+            $('#editForm').find('.form-control').change(function () {
+                let postDict = {name: $(this).attr('name'), value: $(this).val()};
+                postAjaxData(postDict);
+            })
+        }
+
         function saveDesc() {
-            alert('保存！');
-            var postDict = {name: 'desc', value: EDITOR.getValue()}
+            // 获取markdown插件中的数据
+            let postDict = {name: 'desc', value: EDITOR.getValue()};
+            // console.log(postDict);
+            postAjaxData(postDict);
+        }
+
+        function postAjaxData(postDict) {
+            $.ajax({
+                url: ISSUES_CHANGE_URL,
+                type:'post',  //[1, 2]
+                headers:{
+                  {#'Content-Type':'application/json;charset=utf-8'  #}
+                  'Content-Type':'application/json'
+                },
+
+                data:JSON.stringify(postDict),
+
+                dataType:'JSON', //告诉服务端，给我响应会来的数据格式要为json格式， -- HTTPResponse("{'name':'chao'}")
+                success:function (res) {
+                    if (res.status){
+                        createRecordNode(res.data);
+                    }
+                    else {
+                        $('#id_'+postDict.name).parent().next('.error_msg').text(res.error);
+                    }
+
+                }
+
+            })
         }
 
         // 提交评论
         function bindSubmitReply() {
             $('#btnSubmit').click(function () {
-                $('#content').next('.error-msg').text('')
-                var content = $('#content').val();
-                var parent_id = $('#replyUser').attr('parent_id');
+                $('#content').next('.error_msg').text('')
+                let content = $('#content').val();
+                let parent_id = $('#replyUser').attr('parent_id');
 
                 $.ajax({
                     url: INIT_RECORD_URL,
@@ -356,7 +399,7 @@
                             $('#replyUser').removeAttr('parent_id').addClass('hide').children('span').text('')
                         } else {
                             $.each(res.error, function (k, v) {
-                                $('#content').next('.error-msg').text(v[0]);
+                                $('#content').next('.error_msg').text(v[0]);
                             })
                         }
                     }
@@ -371,7 +414,6 @@
                 type: 'get',
                 success: function (res) {  //{'status':true, 'data':[{'content':'','creator':''}]}
                     if (res.status) {
-                        console.log(res.data);
                         $.each(res.data, function (k, v) {
                             createRecordNode(v);
                         })
@@ -384,7 +426,7 @@
 
         /* 创建操作记录节点，把它拿出来封装，是因为我们修改某些字段的时候，也要执行这么一套动作。 */
         function createRecordNode(nodeDict) {
-            var $item = $("#recordTemplate").find('.item').clone();
+            let $item = $("#recordTemplate").find('.item').clone();
             $item.find('.left-avatar').html(nodeDict.creator[0].toUpperCase());
             $item.find('pre').html(nodeDict.content);
             $item.find('.user').html(nodeDict.creator);
@@ -405,9 +447,9 @@
         // 点击回复，提示效果
         function bindReply() {
             $('.comment-area').on('click', '.reply',function () {
-                var $item = $(this).parent().parent().parent()
-                var username = $item.attr('username');
-                var id = $item.attr('id');
+                let $item = $(this).parent().parent().parent()
+                let username = $item.attr('username');
+                let id = $item.attr('id');
                 $('#replyUser').removeClass('hide').attr('parent_id', id).children('span').text(username)
             })
         }
@@ -419,12 +461,6 @@
             })
         }
 
-        // 更新记录，绑定change事件
-        function bindChangeIssues(){
-            $("#editForm").find(".form-control").change(function(){
-                var postDict = {name: $(this).attr('name'), value: ""}
-            })
-        }
     </script>
 {% endblock %}
 

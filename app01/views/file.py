@@ -1,9 +1,13 @@
 import json
-from django.shortcuts import render
+
+import requests
+from django.shortcuts import render, HttpResponse
 from django import views
+from django.utils.encoding import escape_uri_path
+
 from app01 import models
-from app01.myform.file import FileModelForm
-from django.http import JsonResponse
+from app01.myform.file import FileModelForm, FilteMsgModelForm
+from django.http import JsonResponse, FileResponse
 from libs.aliyun.oss import delete_file, delete_files, credential
 from django.views.decorators.csrf import csrf_exempt
 
@@ -34,14 +38,14 @@ class File(views.View):
             project=request.tracer_obj.project,
         )
         if parent_obj:
-            print(32)
             file_obj_list = queryset.filter(parent=parent_obj).order_by("-file_type")
         else:
             file_obj_list = queryset.filter(parent__isnull=True).order_by("-file_type")
         return render(request, "app01/file.html", {
             "form": form,
             "file_obj_list": file_obj_list,
-            "breadcrumb_list": breadcrumb_list
+            "breadcrumb_list": breadcrumb_list,
+            'parent_obj': parent_obj
         })
 
     def edits(self, request):
@@ -110,7 +114,7 @@ class FileDelete(views.View):
                         folder_list.append(child)
                     else:
                         total_size += child.file_size
-                        key_list.append({'Key': child.key})
+                        key_list.append(child.key)
             # delete_file('bzboy-tracer', '202007192.jpg')
             if key_list:
                 # 删除文件
@@ -147,12 +151,52 @@ def cos_credential(request, pro_id):
     return JsonResponse(data_dict)
 
 
+@csrf_exempt
+def file_post(request, pro_id):
+    """ 上传文件提交数据库记录 """
+    form = FilteMsgModelForm(request.POST)
+    if form.is_valid():
+        data_dict = form.cleaned_data
+        data_dict.update({
+            'project': request.tracer_obj.project,
+            'file_type': 1,
+            'update_user': request.tracer_obj.user_obj,
+        })
+        file_obj = models.FileRepository.objects.create(**data_dict)
+        # 修改项目的已用空间大小
+        file_size = form.cleaned_data.get('file_size')
+        request.tracer_obj.project.use_space += file_size
+        request.tracer_obj.project.save()
+        # form.instance.project = request.tracer_obj.project
+        # form.instance.file_type = 1
+        # instance = form.save()  # 和create方法得到的结果有些不同，但是instance不能使用get_xx_display来获取选项的中文
+        result = {
+            'id': file_obj.id,
+            'name': file_obj.name,
+            'file_size': file_obj.file_size,
+            'update_user': file_obj.update_user.username,
+            # 2020年8月14日 02:02
+            'update_datetime': file_obj.update_datetime,
+            'download_url': file_obj.file_path
+            # 'file_type': file_obj.get_file_type_display()
+        }
+        return JsonResponse({'status': True, 'data': result})
+    return JsonResponse({'status': False, 'error': '上传有误'})
 
 
+def file_download(request, pro_id):
+    """ 文件下载 """
+    file_id = request.GET.get('file_id')
+    file_obj = models.FileRepository.objects.filter(id=file_id, project_id=pro_id).first()
 
+    ret = requests.get(file_obj.file_path)
+    data = ret.content
+    # res = HttpResponse(data,content_type='application/octet-stream')
+    # res = FileResponse(data, content_type='application/octet-stream')
+    res = HttpResponse(data)
+    res['Content-Disposition'] = 'attachment; filename={}'.format(escape_uri_path(file_obj.name))
 
-
-
+    return res
 
 
 

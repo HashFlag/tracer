@@ -1,5 +1,5 @@
 {% extends "basic.html" %}
-{% block title %}登录页面{% endblock %}
+{% block title %}登录{% endblock %}
 {% block css %}
     <link rel="stylesheet" href="/static/css/register.css">
     <style>
@@ -99,7 +99,6 @@
 
     // 点击刷新验图片证码事件
     function refreshImgCode() {
-        console.log(1);
         $('#img—code').click(function () {
             let oldSrc = $(this).attr('src');
             $(this).attr('src',oldSrc + '?');

@@ -1,5 +1,5 @@
 {% extends "manage.html" %}
-{% block title %}文件页面{% endblock %}
+{% block title %}文件{% endblock %}
 
 {% block css %}
     <style>
@@ -68,13 +68,17 @@
                     <th>操作</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="data_list">
                 {% for foo in file_obj_list %}
                     <tr>
                         <td>
-                            <a href="{% url 'app01:file' request.tracer_obj.project.id %}?folder_id={{ foo.id }}">
-                                <i class="fa fa-folder" aria-hidden="true"> {{ foo.name }}</i>
-                            </a>
+                            {% if foo.file_type == 2 %}
+                                <a href="{% url 'app01:file' request.tracer_obj.project.id %}?folder_id={{ foo.id }}">
+                                    <i class="fa fa-folder" aria-hidden="true"> {{ foo.name }}</i>
+                                </a>
+                            {% else %}
+                                <i class="fa fa-file" aria-hidden="true"> {{ foo.name }}</i>
+                            {% endif %}
                         </td>
                         {% if foo.file_type == 2 %}
                             <td>-</td>
@@ -91,15 +95,14 @@
                                     <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                                 </button>
                             {% else %}
-                                <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                                        data-target="#myModal" data-fid="{{ foo.id }}">
+                                <a href="{% url 'app01:file_download' request.tracer_obj.project.id %}?file_id={{ foo.id }}" class="btn btn-default btn-xs download" >
                                     <i class="fa fa-cloud-download" aria-hidden="true"></i>
-                                </button>
+                                </a>
                             {% endif %}
-                            <button type="button" class="btn btn-danger btn-xs" data-toggle="modal"
+                            <a class="btn btn-danger btn-xs" data-toggle="modal"
                                     data-target="#alertModal" data-fid="{{ foo.id }}">
                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -125,6 +128,30 @@
                         <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0"
                              aria-valuemax="100"></div>
                     </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="hide">
+        <table id="file-item">
+            <tr>
+                <td class="name">
+                    <a href="javascript:void (0)" style="text-decoration: none; color: black">
+                        <i class="fa fa-file"></i>
+                    </a>
+                </td>
+                <td class="size"></td>
+                <td class="update_user"></td>
+                <td class="update_datetime"></td>
+                <td>
+                    <a  href="" class="btn btn-default btn-xs download">
+                        <i class="fa fa-cloud-download"></i>
+                    </a>
+                    <a class="btn btn-danger btn-xs delete" data-toggle="modal"
+                                    data-target="#alertModal" data-fid="">
+                        <i class="fa fa-trash"></i>
+                    </a>
                 </td>
             </tr>
         </table>
@@ -184,8 +211,10 @@
     <script src="/static/plugins/ali-oss/aliyun-oss-sdk.min.js"></script>
     <script type="text/javascript">
         var DELETE_URL = "{% url 'app01:file_delete' request.tracer_obj.project.id %}";
-        var GET_CREDENTIAL_URL = '{% url "app01:cos_credential" request.tracer_obj.project.id %}'
-        var zimuIdDict = {}
+        var GET_CREDENTIAL_URL = '{% url "app01:cos_credential" request.tracer_obj.project.id %}';
+        var CURRENT_FOLDER_ID = '{{ parent_obj.id }}';
+        var zimuIdDict = {};
+        var FILE_POST = "{% url 'app01:file_post' request.tracer_obj.project.id %}";
         $(function () {
             addTabEvent();
             deleteTabEvent();
@@ -267,9 +296,9 @@
             pro.css('width', percent);
             // console.log('p:', p);  // p:Object的上传进度。
             // console.log('_checkpoint:', _checkpoint);  // _checkpoint:Object分片上传的断点信息。
-            if (p === 1) {
+            if (pro.text() === '100%') {
                 pro.parent().parent().parent().html('');
-            }
+             }
         };
 
         // js异步上传文件上传
@@ -285,11 +314,31 @@
                         people: 'test',
                     },
                 });
-
                 // console.log('result:', result);  // 上传成功后返回的信息
                 // const head = await client.head(filename);
-                // console.log('head', head);
-                $('#upload-process').addClass('hide');
+                if(result.res.status===200){
+                    $.post(FILE_POST, {
+                        name: fileObject.name,
+                        key: result.name,
+                        file_size: fileObject.size,
+                        parent: CURRENT_FOLDER_ID,
+                        file_path: result.res.requestUrls[0],
+                    }, function(res){
+                        if (res.status){
+                            let tr = $('#file-item').find('tr').clone();
+                            tr.find('.name a').append(res.data.name);
+                            tr.find('.size').text(res.data.file_size);
+                            tr.find('.update_user').text(res.data.update_user);
+                            tr.find('.update_datetime').text(res.data.update_datetime);
+                            tr.find('.download').attr('href', '{% url "app01:file_download" request.tracer_obj.project.id %}?file_id=' + res.data.id);
+                            tr.find('.delete').attr('data-fid',res.data.id);
+                            $('#data_list').append(tr);
+                            $('#upload-process').addClass('hide');
+                        }else{
+                            alert(res.error);
+                        }
+                    });
+                }
 
             } catch (e) {
                 // 捕获超时异常。
@@ -355,8 +404,30 @@
 
                             if (fileObject.size < 102400) {
                                 // 普通异步文件上传，因为小文件无法分片上传
-                                client.put(filename, fileObject).then(function (r1) {
-                                    console.log('ok');
+                                client.put(filename, fileObject).then(function (result) {
+                                    if(result.res.status===200){
+                                        $.post(FILE_POST, {
+                                            name: fileName,
+                                            key: result.name,
+                                            file_size: fileObject.size,
+                                            parent: CURRENT_FOLDER_ID,
+                                            file_path: result.url,
+                                        }, function(res){
+                                            if (res.status){
+                                                $('#upload-process').addClass('hide');
+                                                let tr = $('#file-item').find('tr').clone();
+                                                tr.find('.name a').append(res.data.name);
+                                                tr.find('.size').text(res.data.file_size);
+                                                tr.find('.update_user').text(res.data.update_user);
+                                                tr.find('.update_datetime').text(res.data.update_datetime);
+                                                tr.find('.download').attr('href', '{% url "app01:file_download" request.tracer_obj.project.id %}?file_id=' + res.data.id);
+                                                tr.find('.delete').attr('data-fid',res.data.id);
+                                                $('#data_list').append(tr);
+                                            }else{
+                                                alert(res.error);
+                                            }
+                                        });
+                                    }
                                 }).catch(function (err) {
                                     console.error('error: %j', err);
                                 });

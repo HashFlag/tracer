@@ -32,20 +32,15 @@ class FileModelForm(BootstrapForm, forms.ModelForm):
 
 
 class FilteMsgModelForm(forms.ModelForm):
-    etag = forms.CharField(label='etag')
+    # etag = forms.CharField(label='etag')  # 后端远程验证数据存不存在时用的
 
     class Meta:
         model = models.FileRepository
         exclude = ['project', 'file_type', 'update_user', 'update_datetime', ]
 
-    def __init__(self, request, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.request = request
-
     def clean_file_path(self):
-        return 'https://{}'.format(self.cleaned_data.get('file_path'))
-
-
+        file_path = self.cleaned_data.get('file_path').split('?uploadId=')[0]
+        return file_path
 
 
 

@@ -1,3 +1,4 @@
+import uuid
 import hashlib
 from django.conf import settings
 
@@ -9,6 +10,9 @@ def set_md5(value):
     return md5_obj.hexdigest()
 
 
+def uid(data):
+    code = "{}-{}".format(data, str(uuid.uuid4()))
+    return set_md5(code)
 
 
 
