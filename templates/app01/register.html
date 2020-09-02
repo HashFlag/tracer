@@ -106,7 +106,7 @@
         $("#get-yzm").click(function(){
             let phoneEle = $('#id_phone');
             let phoneNum = phoneEle.val().trim();
-            let phoneReg = /^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+            let phoneReg = /^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57]|19[0-9])[0-9]{8}$/
 
             if (phoneNum && phoneReg.test(phoneNum)){
                 phoneEle.next().text('');
