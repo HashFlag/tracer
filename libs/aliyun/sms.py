@@ -29,6 +29,7 @@ def send_sms(template, phone, template_code):
     request.add_query_param('TemplateCode', template_code)  # 模板编号
     request.add_query_param('TemplateParam', f"{template}")  # 发送验证码内容
     response = client.do_action_with_exception(request)
+    print(1)
     return response
 
 

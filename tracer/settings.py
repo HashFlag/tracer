@@ -130,6 +130,7 @@ STATICFILES_DIRS = [
 
 # 白名单
 WHITE_LIST = [
+    '/',
     '/app01/register/',
     '/app01/login/',
     '/app01/index/',

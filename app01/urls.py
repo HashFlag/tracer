@@ -4,11 +4,11 @@ from app01.views import account, project, dashboard, \
 from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
+    url(r'^index/', account.Index.as_view(), name="index"),
     url(r'^register/', account.Register.as_view(), name="register"),
     url(r'^send/sms_code/', account.SmsSendCode.as_view(), name="sms_code"),
     url(r'^login_sms/', account.LoginSms.as_view(), name="login_sms"),
     url(r'login/', account.Login.as_view(), name="login"),
-    url(r'^index/', account.Index.as_view(), name="index"),
     url(r'^price/', pay.Price.as_view(), name="price"),
     url(r'^pay/', pay.pay, name='pay'),
     url(r'^pay_notify/', pay.pay_notify, name='pay_notify'),

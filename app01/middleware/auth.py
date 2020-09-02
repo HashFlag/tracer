@@ -20,12 +20,13 @@ class LoginAuth(MiddlewareMixin):
         request.tracer_obj = tracer_obj
         user_obj = models.UserInfo.objects.filter(pk=user_id).first()
         request.tracer_obj.user_obj = user_obj
+        print("current_path:", type(current_path))
 
         # 白名单判断，在白名单中就放行
         if current_path in settings.WHITE_LIST:
             return
         # 重定向页面
-        if not user_id:
+        elif not user_id:
             return redirect('app01:login')
 
         # 将当前用户的购买策略加到request对象中，方便后面使用
