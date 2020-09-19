@@ -41,6 +41,25 @@ sass项目，bug跟踪管理平台
 
 1.  [项目地址](http://www.bzboy.info/)
 2.  链接失效可以看项目部分展示图，如果失效，原因应该是服务器到期了
+![1](https://images.gitee.com/uploads/images/2020/0919/152409_0f004788_2221473.jpeg "tracer1.JPG")
+![2](https://images.gitee.com/uploads/images/2020/0919/152441_7aa245fc_2221473.jpeg "tracer2.JPG")
+![3](https://images.gitee.com/uploads/images/2020/0919/152501_8a944c4c_2221473.jpeg "tracer3.JPG")
+![4](https://images.gitee.com/uploads/images/2020/0919/152534_f5157540_2221473.jpeg "tracer4.JPG")
+![5](https://images.gitee.com/uploads/images/2020/0919/152548_c7d1df1c_2221473.jpeg "tracer5.JPG")
+![6](https://images.gitee.com/uploads/images/2020/0919/152606_62d03deb_2221473.jpeg "tracer6.JPG")
+![7](https://images.gitee.com/uploads/images/2020/0919/152619_87d52325_2221473.jpeg "tracer7.JPG")
+![8](https://images.gitee.com/uploads/images/2020/0919/152634_1a3fc1c6_2221473.jpeg "tracer8.JPG")
+![9](https://images.gitee.com/uploads/images/2020/0919/152652_c491ce83_2221473.jpeg "tracer9.JPG")
+![10](https://images.gitee.com/uploads/images/2020/0919/152707_1b38b886_2221473.jpeg "tracer10.JPG")
+
+
+
+
+
+
+
+
+
 
 
 #### 参与贡献
