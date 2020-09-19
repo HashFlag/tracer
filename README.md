@@ -51,16 +51,16 @@ sass项目，bug跟踪管理平台
 ![8](https://images.gitee.com/uploads/images/2020/0919/152634_1a3fc1c6_2221473.jpeg "tracer8.JPG")
 ![9](https://images.gitee.com/uploads/images/2020/0919/152652_c491ce83_2221473.jpeg "tracer9.JPG")
 ![10](https://images.gitee.com/uploads/images/2020/0919/152707_1b38b886_2221473.jpeg "tracer10.JPG")
-
-
-
-
-
-
-
-
-
-
+![11](https://images.gitee.com/uploads/images/2020/0919/152741_fd69522e_2221473.jpeg "crm11.JPG")
+![12](https://images.gitee.com/uploads/images/2020/0919/152752_afebd17c_2221473.jpeg "tracer12.JPG")
+![13](https://images.gitee.com/uploads/images/2020/0919/152804_f3993620_2221473.jpeg "crm13.JPG")
+![14](https://images.gitee.com/uploads/images/2020/0919/152822_1d58cebc_2221473.jpeg "crm14.JPG")
+![15](https://images.gitee.com/uploads/images/2020/0919/152835_91767d68_2221473.jpeg "crm15.JPG")
+![16](https://images.gitee.com/uploads/images/2020/0919/152847_eb2ff6a1_2221473.jpeg "tracer16.JPG")
+![17](https://images.gitee.com/uploads/images/2020/0919/152904_2f891376_2221473.jpeg "tracer17.JPG")
+![18](https://images.gitee.com/uploads/images/2020/0919/152913_9c34f6ed_2221473.jpeg "tracer18.JPG")
+![19](https://images.gitee.com/uploads/images/2020/0919/152925_9321c817_2221473.jpeg "tracer19.JPG")
+![20](https://images.gitee.com/uploads/images/2020/0919/152938_6f3dbd97_2221473.jpeg "tracer20.JPG")
 
 #### 参与贡献
 
