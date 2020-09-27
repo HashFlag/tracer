@@ -39,7 +39,7 @@ sass项目，bug跟踪管理平台
 
 #### 效果展示
 
-1.  [项目地址](http://www.bzboy.info/)
+1.  [项目地址]()，项目地址已关闭，阿里云部分服务收费
 2.  链接失效可以看项目部分展示图，如果失效，原因应该是服务器到期了
 ![1](https://images.gitee.com/uploads/images/2020/0919/152409_0f004788_2221473.jpeg "tracer1.JPG")
 ![2](https://images.gitee.com/uploads/images/2020/0919/152441_7aa245fc_2221473.jpeg "tracer2.JPG")
