@@ -4,8 +4,8 @@ from aliyunsdkcore.request import CommonRequest
 
 def send_sms(template, phone, template_code):
     client = AcsClient(
-        'LTAI4GAo2L2wEXX7HqgLJTNz',
-        'Xi6k8iIEeEG0Ag8jjxLKHHBxSv0Eyz',
+        'LTAI4GA*****gLJTNz',
+        'Xi6k8iI*********BxSv0Eyz',
         'cn-hangzhou')
     # 短信里面的 我的AccessKey ID 我的Access Key Secret
     request = CommonRequest()
@@ -24,7 +24,7 @@ def send_sms(template, phone, template_code):
     # request.add_query_param('RegionId', "cn-hangzhou")
 
     request.add_query_param('PhoneNumbers', phone)  # 发给谁
-    request.add_query_param('SignName', "bzboy")  # 签名
+    request.add_query_param('SignName', "b***y")  # 签名
     request.add_query_param('TemplateCode', template_code)  # 模板编号
     request.add_query_param('TemplateParam', f"{template}")  # 发送验证码内容
     response = client.do_action_with_exception(request)
