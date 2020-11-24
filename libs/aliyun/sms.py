@@ -21,7 +21,7 @@ def send_sms(template, phone, template_code):
     # request.set_action_name('QuerySendDetails')
 
     # 这个参数也是固定的
-    request.add_query_param('RegionId', settings.REGION_ID)  # 98A66994-3DF4-4FA5-A33F-CCB36EB599D0
+    request.add_query_param('RegionId', settings.REGION_ID)
     # request.add_query_param('RegionId', "cn-hangzhou")
 
     request.add_query_param('PhoneNumbers', phone)  # 发给谁
